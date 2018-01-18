@@ -19,8 +19,21 @@ To create a server running vault, run
 
 Initialize and unseal vault
 ```
+# Set the VAULT_ADDR to point to your vault server
+export VAULT_ADDR=http://<GCE IP>:80
+
+# Initialize the server
 vault init
-vault unseal
+
 # Follow steps to unseal vault
+# This should also generate a root token which you should store securely
+vault unseal
 ```
-Get a token.
+
+## Step 2: Generate secrets
+TODO: parameterize vault paths in configs, allow users to decide vault paths
+
+## Step 3: Get configs
+
+TODO: package up configs; pull configs
+

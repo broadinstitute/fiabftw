@@ -12,4 +12,5 @@ gcloud compute instances --project ${GOOGLE_PROJ} create ${INSTANCE_NAME} \
     --image-project ubuntu-os-cloud \
     --image-family ubuntu-1710 \
     --machine-type n1-standard-8 \
+    --tags http-server \
     --zone us-central1-a

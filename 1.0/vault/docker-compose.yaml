@@ -13,7 +13,7 @@ vault:
   image: vault
   command: server
   ports:
-    - "9200:8200"
+    - "80:8200"
   volumes:
     - /etc/vault.server/config:/mnt/vault/config
     - /etc/vault.server/data:/mnt/vault/data
