@@ -1,0 +1,12 @@
+{
+  "primaryEmail": "google@fiabftw.firecloud.org",
+  "name": {
+    "givenName": "Google",
+    "familyName": "Admin"
+  },
+  "suspended": false,
+  "password": "temppass",
+  "hashFunction": "SHA-1",
+  "changePasswordAtNextLogin": false,
+  "ipWhitelisted": false
+}
