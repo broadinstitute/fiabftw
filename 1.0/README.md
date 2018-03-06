@@ -7,6 +7,9 @@ Firecloud in a Box for the World
 - IAM permissions on google proj
 - machine with gcloud cli, docker, and vault
 - authed with gcloud cli
+- google apps domain owned by user
+
+Set user@domain as project owner in google proj
 
 ## Step 1: Vault
 
@@ -31,7 +34,14 @@ vault unseal
 ```
 
 ## Step 2: Generate secrets
-TODO: parameterize vault paths in configs, allow users to decide vault paths
+
+* Create service acct for user@domain, put in vault (./initialize-script-runner.sh)
+* ./creat-service-accts.sh
+* ./google-apps-domain/create-initial-groups-and-users.sh
+* ./google-apps-domain/add-users-to-groups.py
+* manual step: create oauth credentials
+
+* for remaining secrets: ./initialize-secrets.sh
 
 ## Step 3: Get configs
 

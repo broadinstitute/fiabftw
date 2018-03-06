@@ -1,25 +1,48 @@
 #!/usr/bin/env bash
 
 GOOGLE_PROJ=$1
-ENV=$2
-VAULT_TOKEN=${3:-$(cat .vault-token-fiabftw)}
+DOMAIN=$2
+ENV=${3:-fiab}
+VAULT_TOKEN=${4:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=$VAULT_TOKEN
 
-# TODO: add svc acct email to fc-admins group
-# TODO: add dwd to svc acct
 
 function create_svc_acct() {
     service=$1
     vault_path=${2:-"secret/dsde/firecloud/${ENV}/${service}/${service}-account.json"}
-    gcloud iam service-accounts create --project=${GOOGLE_PROJ} ${sevice}-${ENV} --display-name "${service}-${ENV}"
+    name=${3:-"${service}-${ENV}"}
+    gcloud iam service-accounts create --project=${GOOGLE_PROJ} ${name} --display-name ${name}
     gcloud beta projects add-iam-policy-binding ${GOOGLE_PROJ} \
-        --member="serviceAccount:${service}-${ENV}@${GOOGLE_PROJ}.iam.gserviceaccount.com" --role='roles/editor'
+        --member="serviceAccount:${name}@${GOOGLE_PROJ}.iam.gserviceaccount.com" --role='roles/editor'
     gcloud iam service-accounts keys create \
         $PWD/${service}-account.json \
-        --iam-account "${service}-${ENV}@${GOOGLE_PROJ}.iam.gserviceaccount.com"
+        --iam-account "${name}@${GOOGLE_PROJ}.iam.gserviceaccount.com"
     vault write ${vault_path} @${PWD}/${service}-account.json
+    echo "${name}@${GOOGLE_PROJ}.iam.gserviceaccount.com" >> service-accts.txt
 
 }
+
+function give_firecloud_role() {
+    echo $DOMAIN
+    organization=$(gcloud organizations list | grep ${DOMAIN} | awk '{print $2}')
+    echo $organization
+    gcloud alpha organizations add-iam-policy-binding $organization \
+        --member="serviceAccount:firecloud-${ENV}@${GOOGLE_PROJ}.iam.gserviceaccount.com" \
+        --role='roles/iam.serviceAccountUser'
+
+    gcloud alpha organizations add-iam-policy-binding $organization \
+        --member="serviceAccount:firecloud-${ENV}@${GOOGLE_PROJ}.iam.gserviceaccount.com" \
+        --role='roles/iam.serviceAccountKeyAdmin'
+
+    gcloud alpha organizations add-iam-policy-binding $organization \
+        --member="serviceAccount:firecloud-${ENV}@${GOOGLE_PROJ}.iam.gserviceaccount.com" \
+        --role='roles/storage.admin'
+
+
+}
+
+rm -f service-accts.txt
+touch service-accts.txt
 
 create_svc_acct agora
 create_svc_acct consent
@@ -29,9 +52,8 @@ create_svc_acct rawls
 create_svc_acct thurloe
 create_svc_acct sam
 create_svc_acct firecloud secret/dsde/firecloud/${ENV}/common/firecloud-account.json
-create_svc_acct billing secret/dsde/firecloud/${ENV}/common/billing-account.json
-create_svc_acct free-trial-billing-manager secret/dsde/firecloud/${ENV}/common/trial-billing-account.json
+create_svc_acct billing secret/dsde/firecloud/${ENV}/common/billing-account.json billing
+create_svc_acct free-trial-billing-manager secret/dsde/firecloud/${ENV}/common/trial-billing-account.json free-trial-billing-manager
 
-
-# Create oauth credentials
-# consent, rawls, refresh token, leo
+# Give additional roles to firecloud-${ENV} svc acct
+give_firecloud_role

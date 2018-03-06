@@ -1,39 +1,70 @@
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
 import sys, os
-import json
+from common import create_directory_service
 
 CWD = os.getcwd()
 
 
-def create_directory_service(user_email, svc_acct_json_path):
-    """Build and returns an Admin SDK Directory service object authorized with the service accounts
-    that act on behalf of the given user.
-
-    Args:
-      user_email: The email of the user. Needs permissions to access the Admin APIs.
-    Returns:
-      Admin SDK directory service object.
-    """
-
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        svc_acct_json_path,
-        scopes=['https://www.googleapis.com/auth/admin.directory.user'])
-
-    credentials = credentials.create_delegated(user_email)
-
-    return build('admin', 'directory_v1', credentials=credentials)
+def add_user(service, user_data):
+    print "Adding user {0}".format(user_data['primaryEmail'])
+    service.users().insert(body=user_data).execute()
 
 
-def add_user(service, user_json):
-    data = json.load(open(os.path.join(CWD, user_json)))
-    print "Adding user {0}".format(data['primaryEmail'])
-    service.users().insert(body=data).execute()
+def make_admin(service, user_key):
+    print "Setting user {0} as admin".format(user_key)
+    service.users().makeAdmin(body={"status": True}, userKey=user_key).execute()
+
+
+def add_group(service, group_name, group_email):
+    data = {"name": group_name,
+            "email": group_email}
+    service.groups().insert(body=data).execute()
+
+
+def set_up_firecloud_users(service, domain, passwd):
+    # Add google user and make admin
+    google_user = {
+        "primaryEmail": "google@{0}".format(domain),
+        "name": {
+            "givenName": "Google",
+            "familyName": "Admin"
+        },
+        "suspended": False,
+        "password": passwd
+    }
+
+    add_user(service, google_user)
+    make_admin(service, google_user["primaryEmail"])
+
+    # Add billing user
+    billing_user = {
+        "primaryEmail": "billing@{0}".format(domain),
+        "name": {
+            "givenName": "Firecloud",
+            "familyName": "Billing"
+        },
+        "suspended": False,
+        "password": passwd
+    }
+    add_user(service, billing_user)
+
+
+def set_up_firecloud_groups(service, domain, env, google_proj):
+    add_group(service, "FC Admins", "fc-ADMINS@{0}".format(domain))
+    add_group(service, "FC Comms", "fc-COMMS@{0}".format(domain))
+    add_group(service, "FC Curators", "fc-CURATORS@{0}".format(domain))
+    add_group(service, "FireCloud Project Owners", "firecloud-project-owners@{0}".format(domain))
+    add_group(service, "Firecloud Project Editors - fiab", "firecloud-project-editors-{0}@{1}".format(env, domain))
+    add_group(service, "firecloud-{0}@{1}.iam.gserviceaccount.com".format(env, google_proj), "proxy_servacct@{0}".format(domain))
+
 
 
 if __name__ == '__main__':
-    user_email = sys.argv[1]
-    svc_acct = os.path.join(CWD, sys.argv[2])
+    domain = sys.argv[1]
+    user_email = sys.argv[2]
+    svc_acct = os.path.join(CWD, sys.argv[3])
+    env = sys.argv[4]
+    google_proj = sys.argv[5]
 
     directory = create_directory_service(user_email, svc_acct)
-    add_user(directory, 'google-apps-domain/TestUser.json')
+    set_up_firecloud_users(directory, domain, "xxx")
+    set_up_firecloud_groups(directory, domain, env, google_proj)
