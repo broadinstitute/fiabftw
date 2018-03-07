@@ -64,7 +64,8 @@ if __name__ == '__main__':
     svc_acct = os.path.join(CWD, sys.argv[3])
     env = sys.argv[4]
     google_proj = sys.argv[5]
+    default_password = sys.argv[6]
 
     directory = create_directory_service(user_email, svc_acct)
-    set_up_firecloud_users(directory, domain, "xxx")
+    set_up_firecloud_users(directory, domain, default_password)
     set_up_firecloud_groups(directory, domain, env, google_proj)
