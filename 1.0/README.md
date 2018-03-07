@@ -78,7 +78,7 @@ This will create service accounts for all firecloud services and give them the a
 It will also generate a text file, `service-accts.txt`, which will be used in the following step to add the service
 accounts to groups in GSuite. 
 
-**Manual Step**: Give the following services accounts [Domain-wide Delegation](manual-step-enable-domain-wide-delegation): agora, billing, firecloud, free-trial-billing-manager, leonardo, rawls, and sam.
+**Manual Step**: Give the following services accounts [Domain-wide Delegation](#manual-step-enable-domain-wide-delegation): agora, billing, firecloud, free-trial-billing-manager, leonardo, rawls, and sam.
 
 **Manual Step**: Create OAuth Credentials. (TODO)
 
@@ -90,7 +90,7 @@ accounts to groups in GSuite.
 
 This will create the initial Firecloud groups and users, and add users and service accounts to groups.
 
-**Manual Step**: [Add scopes](manual-step-authorize-api-scopes) to the following services accounts in the Admin Console:
+**Manual Step**: [Add scopes](#manual-step-authorize-api-scopes) to the following services accounts in the Admin Console:
 
 service | scopes
 --- | ---
