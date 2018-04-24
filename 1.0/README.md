@@ -100,9 +100,17 @@ rawls | https://www.googleapis.com/auth/admin.directory.group <br> https://www.g
 firecloud | https://www.googleapis.com/auth/cloud-platform <br> https://www.googleapis.com/auth/devstorage.full_control <br> https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user <br> email <br> profile <br> openid
 sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.user
 
-## Step 3: Generate google groups
+## Step 3: Generate google buckets
+
+```
+./gce/create-buckets.sh [google proj] [env] [bucket-tag] [vault-token]
+```
+Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets. 
 
 ## Step 4: Generate remaining secrets
+
+pull configs 
+get secrets file - do remaining secrets
 
 ## Step 5: Networking and acquiring certs
 
@@ -110,3 +118,4 @@ sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleap
 
 TODO: package up configs; pull configs
 
+## Step 7: Set up a fiab allocator
