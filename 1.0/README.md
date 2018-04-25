@@ -105,6 +105,7 @@ sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleap
 ## Step 3: Generate google groups
 
 ## Step 4: Generate remaining secrets
+`secret/dsde/firecloud/common/oauth_client_id` needs to be populated with oauth-client-ids. Need to get oauth client id tied to Google Project (APIs->Credentials->Web Service Account)
 
 ## Step 5: Networking and acquiring certs
 
