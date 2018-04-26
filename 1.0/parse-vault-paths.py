@@ -11,8 +11,9 @@ def password_create():
 def populate_secret(secret_path, secret):
     pass
 
-def find_missing_secrets(secrets):
-    env = {"environment": "fiab"}
+
+def find_missing_secrets(secrets, env):
+    env = {"environment": env}
     for s,v in secrets.iteritems():
         k = s[s.find("(")+1:s.find(")")]
         secret_path = subprocess.check_output(k, shell=True, env=env)
@@ -28,9 +29,10 @@ def find_missing_secrets(secrets):
 
 if __name__ == '__main__':
     secrets_file_path = sys.argv[1]
+    env = sys.argv[2]
     print secrets_file_path
     with open(secrets_file_path) as f:
         secrets_file = json.load(f)
 
-    find_missing_secrets(secrets_file)
+    find_missing_secrets(secrets_file, env)
     # TODO: parse keyword for action

@@ -4,6 +4,7 @@ USERNAME=$1
 GOOGLE_PROJ=$2
 VAULT_TOKEN=${3:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=$VAULT_TOKEN
+echo $VAULT_TOKEN
 
 name=$(echo $USERNAME | cut -d@ -f1)
 domain=$(echo $USERNAME | cut -d@ -f2)

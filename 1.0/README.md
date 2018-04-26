@@ -33,7 +33,7 @@ export VAULT_ADDR=http://<GCE IP>:80
 vault init
 
 # Follow steps to unseal vault
-# This should also generate a root token which you should at ".vault-token-fiabftw" at the root of this project
+# This should also generate a root token which you store should at ".vault-token-fiabftw" at the root of this project
 vault unseal
 ```
 
@@ -42,7 +42,7 @@ vault unseal
 ### Create an acting service account
 
 ```
-./initialize-script-runner.sh [admin email] [google project] [env]
+./initialize-script-runner.sh [admin email] [google project]
 ```
 This will create a service account for your admin account, which will be used to authenticate with both GSuite and 
 GCloud to run subsequent commands.
@@ -90,7 +90,7 @@ accounts to groups in GSuite.
 
 This will create the initial Firecloud groups and users, and add users and service accounts to groups.
 
-**Manual Step**: [Add scopes](#manual-step-authorize-api-scopes) to the following services accounts in the Admin Console:
+**Manual Step**: [Add scopes](#manual-step-authorize-api-scopes) to the following services accounts in the Admin Console (remember that you have to use the service account `client_id` as the Client Name):
 
 service | scopes
 --- | ---
@@ -114,8 +114,8 @@ get secrets file - do remaining secrets
 
 ## Step 5: Networking and acquiring certs
 
-## Step 6: Pull FiaB configs
+## Step 6: Render FiaB configs
 
-TODO: package up configs; pull configs
+DNS_DOMAIN
 
 ## Step 7: Set up a fiab allocator
