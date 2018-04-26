@@ -11,7 +11,8 @@ if [ $SERVICE = "common" ]; then
     CLIENT_ID=$(cat $CREDS_FILE_PATH | jq -r '.web.client_id' | cut -d '-' -f 1)
     vault write secret/dsde/firecloud/${ENV}/common/refresh-token-oauth-credential.json @${CREDS_FILE_PATH}
     echo "{\"client_id\": {\"$ENV\": \"$CLIENT_ID\"}}" > client_id.json
-    vault write secret/dsde/firecloud/common/oauth_client_id value=@client_id
+    vault write secret/dsde/firecloud/common/oauth_client_id @client_id.json
+    rm client_id.json
 else
     vault write secret/dsde/firecloud/${ENV}/${SERVICE}/${SERVICE}-oauth-credential.json @${CREDS_FILE_PATH}
 fi

@@ -80,12 +80,14 @@ accounts to groups in GSuite.
 
 **Manual Step**: Give the following services accounts [Domain-wide Delegation](#manual-step-enable-domain-wide-delegation): agora, billing, firecloud, free-trial-billing-manager, leonardo, rawls, and sam.
 
-**Manual Step**: Create OAuth Credentials. (TODO)
+**Manual Step**: [Create Oauth Credentials](./oauth/OauthCreds.md).
 
 ### Create groups and users in GSuite
 
 ```
-./google-apps-domain/initialize-users-and-groups.sh [google apps domain] [admin email] [google project] [env]
+# NOTE: [password] is a default password for the users who will be created in your apps domain
+# NOTE: [admin email] must be in the apps domain 
+./google-apps-domain/initialize-users-and-groups.sh [google apps domain] [admin email] [google project] [password] [env]
 ```
 
 This will create the initial Firecloud groups and users, and add users and service accounts to groups.

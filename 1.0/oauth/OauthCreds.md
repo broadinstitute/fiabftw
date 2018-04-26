@@ -21,6 +21,8 @@ common refresh token | Refresh Token Oauth Credential | https://firecloud.[domai
 
 ## Store credentials in Vault
 
+In the gcloud API Credentials UI, download the json client secret for each credential.  Pass the absolute path of the json file to the script below.
+
 ```$xslt
 ./oauth/add-oauth-creds-to-vault.sh rawls [path-to-json] [env]
 ./oauth/add-oauth-creds-to-vault.sh consent [path-to-json] [env]
