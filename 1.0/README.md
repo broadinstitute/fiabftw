@@ -4,10 +4,12 @@ Firecloud in a Box for the World
 ## Step 0: Prerequisites
 
 - google project with billing account linked
-- IAM permissions on google proj
+- Full Owner permissions on google proj
 - machine with gcloud cli, docker, and vault
-- authed with gcloud cli
-- google apps domain owned by user
+- authed with gcloud cli with same user that has permissions on Google Proj
+- google apps domain (GSuite) owned by user
+- DNS Domain for the project
+- SSL Certificates in PEM format with bundle/chain. A wildcard SSL is perferred.
 - APIs enabled: 
 - define admin console/gcloud console
 
@@ -110,6 +112,7 @@ sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleap
 Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets. 
 
 ## Step 4: Generate remaining secrets
+`secret/dsde/firecloud/common/oauth_client_id` needs to be populated with oauth-client-ids. Need to get oauth client id tied to Google Project (APIs->Credentials->Web Service Account)
 
 pull configs 
 get secrets file - do remaining secrets
