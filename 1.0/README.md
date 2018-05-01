@@ -22,6 +22,7 @@ Other requirements:
 Authenticate with the gcloud CLI using your admin user:
 ```
 gcloud auth login [admin user]
+gcloud config set project [google project]
 ```
 
 #### Environment variables
@@ -125,7 +126,7 @@ sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleap
 ```
 ./gce/create-buckets.sh [google proj] [env] [bucket-tag] [vault-token]
 ```
-Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets. 
+Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets.  It will default to `[google project]-[env]`
 
 ## Step 4: Generate remaining secrets
 `secret/dsde/firecloud/common/oauth_client_id` needs to be populated with oauth-client-ids. Need to get oauth client id tied to Google Project (APIs->Credentials->Web Service Account)

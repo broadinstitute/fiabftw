@@ -19,4 +19,4 @@ export VAULT_TOKEN=$VAULT_TOKEN
 vault read -format=json secret/dsde/firecloud/admin-account.json | jq '.data' > admin-acct.json
 
 python google-apps-domain/create-initial-groups-and-users.py ${DOMAIN} ${USERNAME} admin-acct.json ${ENV} ${GOOGLE_PROJ} ${PASSWORD}
-#python google-apps-domain/add-users-to-groups.py ${DOMAIN} ${USERNAME} admin-acct.json ${ENV} ${GOOGLE_PROJ} service-accts.txt
+python google-apps-domain/add-users-to-groups.py ${DOMAIN} ${USERNAME} admin-acct.json ${ENV} ${GOOGLE_PROJ} service-accts.txt
