@@ -3,17 +3,35 @@ Firecloud in a Box for the World
 
 ## Step 0: Prerequisites
 
-- google project with billing account linked
-- IAM permissions on google proj
-- machine with gcloud cli, docker, and vault
-- authed with gcloud cli
-- google apps domain owned by user
-- APIs enabled: 
-- define admin console/gcloud console
+You will need the following software installed on your workspace to run the set up scripts:
+- [Docker](https://www.docker.com/community-edition)
+- [Vault](https://www.vaultproject.io/downloads.html)
+- [gcloud CLI](https://cloud.google.com/sdk/gcloud/)
 
-Set user@domain as project owner in google proj - admin email
+Other requirements:
+- A [Google Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) (hence referred to as `[google project]`) with a billing account linked to it and the following APIs enabled:
+    - Admin SDK
+    - Google Cloud Billing API
+    - Google Drive API
+    - Google Sheets API
+- A [GSuite](https://gsuite.google.com/) account (hence referred to as `[google apps domain]`)
+- An admin user (hence referred to as `[admin user]`) in the Apps Domain who has also been added to the google project with the "Project Owner" IAM role
+- A DNS Domain for the project (hence referred to as `[dns domain]`) 
+- SSL Certificates in PEM format with bundle/chain.  A wildcard SSL is preferred.
 
-explain "env"
+Authenticate with the gcloud CLI using your admin user:
+```
+gcloud auth login [admin user]
+```
+
+#### Environment variables
+The following environment variables will be referenced in the remainder of this documentation: 
+- `[google project]` - the name of your google project (i.e. `broad-dsp-fiabftw`)
+- `[google apps domain]` - your GSuite account domain (i.e. `fiabftw.firecloud.org`)
+- `[admin email]` - an admin account to act as script runner.  Should be in the google apps domain and a Project Owner in the google project.
+- `[dns domain]` - the DNS domain with associated SSL certs (i.e. `fiabftw.broadinstitute.org`)
+- `[env]` - This is an internal variable that allows for the possibility of standing up multiple fiab "environments" with their own service accounts, groups, and DNS domains.  Will default to a single env, `fiab`.
+- `[vault token]` -  See Step 1 for details.  Will default to reading from `.vault-token-fiabftw` for all scripts. 
 
 ## Step 1: Vault
 
