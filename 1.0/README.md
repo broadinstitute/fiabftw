@@ -128,6 +128,7 @@ sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleap
 Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets. 
 
 ## Step 4: Generate remaining secrets
+`secret/dsde/firecloud/common/oauth_client_id` needs to be populated with oauth-client-ids. Need to get oauth client id tied to Google Project (APIs->Credentials->Web Service Account)
 
 pull configs 
 get secrets file - do remaining secrets
