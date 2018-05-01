@@ -128,13 +128,21 @@ sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleap
 ```
 Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets.  It will default to `[google project]-[env]`
 
-## Step 4: Generate remaining secrets
-`secret/dsde/firecloud/common/oauth_client_id` needs to be populated with oauth-client-ids. Need to get oauth client id tied to Google Project (APIs->Credentials->Web Service Account)
+## Step 4: Networking and DNS
+
+populate certs into vault
+
+## Step 5: Generate remaining secrets
+
+Pull the fiab configs and generate remaining secrets:
+```$xslt
+./initialize-secrets.sh [env]
+```
+
+TODO: `secret/dsde/firecloud/common/oauth_client_id` needs to be populated with oauth-client-ids. Need to get oauth client id tied to Google Project (APIs->Credentials->Web Service Account)
 
 pull configs 
 get secrets file - do remaining secrets
-
-## Step 5: Networking and acquiring certs
 
 ## Step 6: Render FiaB configs
 
