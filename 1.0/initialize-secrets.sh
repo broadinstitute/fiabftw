@@ -11,11 +11,4 @@ VAULT_TOKEN=${2:-$(cat .vault-token-fiabftw)}
 #gsutil cp gs://fiab-configs/fiabftw-configs.zip .
 #unzip -o fiabftw-configs.zip -d fiab-configs
 
-python parse-vault-paths.py $PWD/fiab-configs/vaultPaths.json $ENV
-
-# for each key in json file:
-#   key = printf with environment
-#   if key not in vault:
-#       create & create all fields
-#   else:
-#       for field in
+python parse-vault-paths.py --fromFile $PWD/fiab-configs/vaultPaths.json --env $ENV

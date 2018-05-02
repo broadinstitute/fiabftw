@@ -57,3 +57,6 @@ create_svc_acct free-trial-billing-manager secret/dsde/firecloud/${ENV}/common/t
 
 # Give additional roles to firecloud-${ENV} svc acct
 give_firecloud_role
+
+# Extra vault secrets
+vault write secret/dsde/firecloud/${ENV}/cromwell/secrets service_auth_service_account_id=cromwell-${ENV}@${GOOGLE_PROJ}.iam.gserviceaccount.com
