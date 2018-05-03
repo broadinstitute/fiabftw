@@ -130,7 +130,11 @@ Note: the parameter `bucket-tag` is for giving a globally unique tag to Fireclou
 
 ## Step 4: Networking and DNS
 
-populate certs into vault
+Populate SSL certs into vault:
+```$xslt
+./add-ssl-certs-to-vault.sh [cert path] [key path] [bundle path] [env]
+```
+where `[cert path]` is the path to an SSL Certificate PEM, `[key path]` is the path to an SSL Private Key PEM, and `[bundle path]` is the path to a certificate chain bundle PEM.
 
 ## Step 5: Generate remaining secrets
 
@@ -138,11 +142,6 @@ Pull the fiab configs and generate remaining secrets:
 ```$xslt
 ./initialize-secrets.sh [env]
 ```
-
-TODO: `secret/dsde/firecloud/common/oauth_client_id` needs to be populated with oauth-client-ids. Need to get oauth client id tied to Google Project (APIs->Credentials->Web Service Account)
-
-pull configs 
-get secrets file - do remaining secrets
 
 ## Step 6: Render FiaB configs
 
