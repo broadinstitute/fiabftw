@@ -14,6 +14,7 @@ Other requirements:
     - Google Cloud Billing API
     - Google Drive API
     - Google Sheets API
+    - Cloud Pub/Sub API
 - A [GSuite](https://gsuite.google.com/) account (hence referred to as `[google apps domain]`)
 - An admin user (hence referred to as `[admin user]`) in the Apps Domain who has also been added to the google project with the "Project Owner" IAM role
 - A DNS Domain for the project (hence referred to as `[dns domain]`) 
@@ -136,6 +137,11 @@ Populate SSL certs into vault:
 ```
 where `[cert path]` is the path to an SSL Certificate PEM, `[key path]` is the path to an SSL Private Key PEM, and `[bundle path]` is the path to a certificate chain bundle PEM.
 
+Generate leonardo Jupyter certs:
+```
+export ENV=[env]
+sh fiab-configs/scripts/leonardo/generate_jupyter_secrets.sh
+```
 ## Step 5: Generate remaining secrets
 
 Pull the fiab configs and generate remaining secrets:
@@ -143,8 +149,29 @@ Pull the fiab configs and generate remaining secrets:
 ./initialize-secrets.sh [env]
 ```
 
-## Step 6: Render FiaB configs
+## Step 6: Set up a fiab allocator
 
-DNS_DOMAIN
+```$xslt
+./allocator/create-allocator.sh [google proj] [instance name] [env]
+```
+Where `[instance name]` is the name you wish to give to your GCE instance.  This will create a GCE instance and write out its IP, which should be used as the `[allocator url]` in Step 7.
 
-## Step 7: Set up a fiab allocator
+## Step 7: Start a fiab
+
+First, create and provision the fiab host:
+```$xslt
+./create-fiab-instance.sh [google proj] [name] [allocator url] [env]
+```
+Next, start Firecloud on the host:
+```
+./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [env]
+```
+
+TODO: basic populate
+
+#### To stop a fiab
+```
+./fiab.sh stop [fiab host]
+```
+
+To perform more actions on your fiab host, use the Swagger API, accessible at `http://[allocator host]:80/apidocs/index.html`

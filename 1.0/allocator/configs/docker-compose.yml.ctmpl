@@ -1,0 +1,31 @@
+{{with $googleProj := env "GOOGLE_PROJ"}}
+version: '2'
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: jacalloc
+      POSTGRES_PASSWORD: jacalloc123
+
+  app:
+    image: jacmrob/jacalloc:gce
+    ports:
+      - "80:5000"
+    environment:
+      POSTGRES_URL: 'postgresql://jacalloc:jacalloc123@postgres:5432/jacalloc'
+      PYTHONUNBUFFERED: 0
+      RESOURCE_BACKEND: 'gce'
+
+    volumes:
+      - ./admin-acct.json:/app/{{$googleProj}}.json:ro
+      - ./settings.env:/app/{{$googleProj}}.env:ro
+      - ./startup.sh:/app/startup.sh:ro
+    depends_on:
+      - postgres
+    links:
+      - postgres:postgres
+    working_dir: /app
+    entrypoint: ["./startup.sh"]
+{{end}}
