@@ -1,0 +1,17 @@
+{{with $vaultIP := env "VAULT_IP"}}
+consul = "localhost:8500"
+token = ""
+retry = "10s"
+
+log_level = "info"
+vault {
+  address = "http://{{$vaultIP}}:80"
+  token = ""
+  ssl {
+  enabled = false
+  verify = true
+  cert = ""
+  ca_cert = ""
+}
+}
+{{end}}

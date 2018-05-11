@@ -14,7 +14,7 @@ CONFIGS_DIR=$PWD/fiab-configs
 BASE_PATH="/"
 HOST_PATH="/FiaB"
 POPULATE_PATH="${HOST_PATH}/fiab-populate"
-VAULT_CONFIG_PATH=/w/vault-config.json
+VAULT_CONFIG_PATH=/w/vault/vault-config.json
 SSHCMD="ssh -o UserKnownHostsFile=/dev/null -o CheckHostIP=no -o StrictHostKeyChecking=no"
 
 
@@ -57,6 +57,20 @@ start_fiab() {
         -e FIAB_HOST=${HOST_NAME} \
         -e ALLOCATOR_URL=${ALLOCATOR_URL} \
         broadinstitute/dsp-toolbox:allocator fiab start-fiab
+
+}
+
+stop_fiab() {
+    # Make sure the fiab host exists
+    response=$(curl -X GET --write-out "%{http_code}\n" --silent --output "allocator-get.json" $ALLOCATOR_URL/resources/$HOST_NAME)
+    if [ $response -ne 200 ]; then
+        echo "FiaB host not found!"
+        cat allocator-get.json
+        exit 1
+    fi
+    HOST_IP=$(cat allocator-get.json | jq '.ip' --raw-output)
+
+    $SSHCMD root@$HOST_IP "bash $HOST_PATH/stop_FiaB.sh $HOST_PATH"
 
 }
 

@@ -19,16 +19,12 @@ docker run --rm -v $PWD/output:/output \
     -e DISK_SIZE=${DISK_SIZE} \
     broadinstitute/dsp-toolbox:allocator fiab create
 
-# TODO: fix this
 # Get data from newly-created host
-SSH_HOST=$(jq --raw-output '.IP' output/host.json)
-HOST_NAME=$(jq --raw-output '.InstanceName' output/host.json)
-
+SSH_HOST=$(jq --raw-output '.ip' output/host.json)
+HOST_NAME=$(jq --raw-output '.name' output/host.json)
 
 echo "Now sleeping for 5 minutes during host instantiation."
-sleep 300
-
-HOST_NAME=fiab-jroberti-noble-donkey
+sleep 240
 
 # Provision host
 gcloud compute --project ${GOOGLE_PROJ} scp ./gce/provision-instance.sh root@${HOST_NAME}:/tmp
