@@ -142,6 +142,12 @@ Generate leonardo Jupyter certs:
 export ENV=[env]
 sh fiab-configs/scripts/leonardo/generate_jupyter_secrets.sh
 ```
+
+Create a firewall rules for FiaB:
+```
+./gce/create-firewall-rules.sh [google proj]
+```
+
 ## Step 5: Generate remaining secrets
 
 Pull the fiab configs and generate remaining secrets:
