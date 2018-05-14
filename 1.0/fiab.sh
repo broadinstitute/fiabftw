@@ -80,7 +80,7 @@ if [ $COMMAND = "start" ]; then
 
 elif [ $COMMAND = "stop" ]; then
     echo "stopping fiab"
-    # TODO
+    stop_fiab
 
 else
     echo "Not a valid command.  Try either 'start' or 'stop'"

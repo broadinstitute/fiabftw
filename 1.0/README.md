@@ -15,6 +15,7 @@ Other requirements:
     - Google Drive API
     - Google Sheets API
     - Cloud Pub/Sub API
+    - Identity and Access Management API
 - A [GSuite](https://gsuite.google.com/) account (hence referred to as `[google apps domain]`)
 - An admin user (hence referred to as `[admin user]`) in the Apps Domain who has also been added to the google project with the "Project Owner" IAM role
 - A DNS Domain for the project (hence referred to as `[dns domain]`) 
