@@ -124,14 +124,26 @@ rawls | https://www.googleapis.com/auth/admin.directory.group <br> https://www.g
 firecloud | https://www.googleapis.com/auth/cloud-platform <br> https://www.googleapis.com/auth/devstorage.full_control <br> https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user <br> email <br> profile <br> openid
 sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.user
 
-## Step 3: Generate google buckets
+## Step 3: Billing
+
+In order to create and use any resources in Firecloud, you will need to associate Firecloud with your Google billing account (this is the account that your project is linked to). This will allow you to create
+a billing project in Firecloud, which will allow you to use Google resources.  To do this, you will need to add two users to your Google billing account: `billing@[google apps domain]` and your `[admin user]`. 
+
+In the GCloud console, go to your organization -> Billing -> Manage billing accounts. Be sure that "Show subaccounts" is selected. 
+Select the appropriate billing account.  Under "Permissions", in the "Add members" box add the billing user and your admin user with the role `Billing Account User`
+
+![Alt text](./screenshots/billing-account.png "Add users to a billing account")
+
+You can add additional users to the billing account, and they will be able to create/manage billing projects when they register with Firecloud.
+
+## Step 4: Generate google buckets
 
 ```
 ./gce/create-buckets.sh [google proj] [env] [bucket-tag] [vault-token]
 ```
 Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets.  It will default to `[google project]-[env]`
 
-## Step 4: Networking and DNS
+## Step 5: Networking and DNS
 
 Populate SSL certs into vault:
 ```$xslt
@@ -150,7 +162,7 @@ Create a firewall rules for FiaB:
 ./gce/create-firewall-rules.sh [google proj]
 ```
 
-## Step 5: Generate remaining secrets
+## Step 6: Generate remaining secrets
 
 Pull the fiab configs and generate remaining secrets:
 ```$xslt
@@ -159,14 +171,14 @@ Pull the fiab configs and generate remaining secrets:
 
 For more about overwriting/editing vault secrets, see the Secrets.md document.
 
-## Step 6: Set up a fiab allocator
+## Step 7: Set up a fiab allocator
 
 ```$xslt
 ./allocator/create-allocator.sh [google proj] [instance name] [env]
 ```
 Where `[instance name]` is the name you wish to give to your GCE instance.  This will create a GCE instance and write out its IP, which should be used as the `[allocator url]` in Step 7.
 
-## Step 7: Start a fiab
+## Step 8: Start a fiab
 
 1. Create and provision the fiab host:
 ```$xslt
