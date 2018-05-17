@@ -11,11 +11,12 @@ You will need the following software installed on your workspace to run the set 
 Other requirements:
 - A [Google Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) (hence referred to as `[google project]`) with a billing account linked to it and the following APIs enabled:
     - Admin SDK
-    - Google Cloud Billing API
+    - Cloud Billing API
     - Google Drive API
     - Google Sheets API
     - Cloud Pub/Sub API
     - Identity and Access Management API
+    - Genomics API
 - A [GSuite](https://gsuite.google.com/) account (hence referred to as `[google apps domain]`)
 - An admin user (hence referred to as `[admin user]`) in the Apps Domain who has also been added to the google project with the "Project Owner" IAM role
 - A DNS Domain for the project (hence referred to as `[dns domain]`) 
@@ -156,6 +157,8 @@ Pull the fiab configs and generate remaining secrets:
 ./initialize-secrets.sh [env]
 ```
 
+For more about overwriting/editing vault secrets, see the Secrets.md document.
+
 ## Step 6: Set up a fiab allocator
 
 ```$xslt
@@ -165,16 +168,23 @@ Where `[instance name]` is the name you wish to give to your GCE instance.  This
 
 ## Step 7: Start a fiab
 
-First, create and provision the fiab host:
+1. Create and provision the fiab host:
 ```$xslt
 ./create-fiab-instance.sh [google proj] [name] [allocator url] [env]
 ```
-Next, start Firecloud on the host:
+2. If you have not pulled the fiab-configs recently (Step 5), run the following script to update your configs and any vault secrets:
+```
+./initialize-secrets.sh [env]
+```
+
+3. If you want to run your fiab with a custom docker image for any service, edit `FiaB_images.env`.  Otherwise, all images will default to `dev`.
+
+4. Start Firecloud on the host:
 ```
 ./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [env]
 ```
 
-TODO: basic populate
+5. TODO: basic populate
 
 #### To stop a fiab
 ```

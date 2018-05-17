@@ -74,13 +74,20 @@ stop_fiab() {
 
 }
 
+clear_db() {
+    $SSHCMD root@$HOST_IP "sudo rm -rf $BASE_PATH/mysqlstore/ $BASE_PATH/mongostore/ $BASE_PATH/es/ $BASE_PATH/opendjstore/ $BASE_PATH/ldapstore/"
+
+}
+
 if [ $COMMAND = "start" ]; then
+    echo "starting fiab"
     render_configs
     start_fiab
 
 elif [ $COMMAND = "stop" ]; then
     echo "stopping fiab"
     stop_fiab
+    clear_db
 
 else
     echo "Not a valid command.  Try either 'start' or 'stop'"

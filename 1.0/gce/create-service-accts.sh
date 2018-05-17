@@ -6,12 +6,15 @@ ENV=${3:-fiab}
 VAULT_TOKEN=${4:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=$VAULT_TOKEN
 
+set -e
+
 
 function create_svc_acct() {
     service=$1
     vault_path=${2:-"secret/dsde/firecloud/${ENV}/${service}/${service}-account.json"}
     name=${3:-"${service}-${ENV}"}
     role=${4:-roles/editor}
+    echo $name
     gcloud iam service-accounts create --project=${GOOGLE_PROJ} ${name} --display-name ${name}
     gcloud beta projects add-iam-policy-binding ${GOOGLE_PROJ} \
         --member="serviceAccount:${name}@${GOOGLE_PROJ}.iam.gserviceaccount.com" --role="${role}"
@@ -55,7 +58,7 @@ create_svc_acct sam
 create_svc_acct firecloud secret/dsde/firecloud/${ENV}/common/firecloud-account.json
 create_svc_acct billing secret/dsde/firecloud/${ENV}/common/billing-account.json billing
 create_svc_acct free-trial-billing-manager secret/dsde/firecloud/${ENV}/common/trial-billing-account.json free-trial-billing-manager
-create_svc_acct bigquery secret/dsde/firecloud/${ENV}/common/bigquery-account.json roles/bigquery.jobUser
+create_svc_acct bigquery secret/dsde/firecloud/${ENV}/common/bigquery-account.json bigquery-${ENV} roles/bigquery.jobUser
 
 # Give additional roles to firecloud-${ENV} svc acct
 give_firecloud_role

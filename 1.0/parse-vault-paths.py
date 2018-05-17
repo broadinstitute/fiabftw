@@ -9,6 +9,10 @@ def password_create():
     return passgen.passgen()
 
 
+def encrypt_password(passwd):
+    return passwd
+
+
 class Secret:
     """
     A Vault secret.
@@ -29,6 +33,8 @@ class Secret:
             self.create_secret(path, path_suffix)
         elif "password" in field or field == "signing-secret":
             return password_create()
+        elif field == "gcs_tokenEncryptionKey":
+            return encrypt_password(password_create())
         elif "user" in field or "name" in field:
             return path.split("/")[4]
         else:

@@ -16,7 +16,15 @@ ENV=${5:-fiab}
 VAULT_TOKEN=${6:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=$VAULT_TOKEN
 
+set -e
+
 vault read -format=json secret/dsde/firecloud/admin-account.json | jq '.data' > admin-acct.json
 
 python google-apps-domain/create-initial-groups-and-users.py ${DOMAIN} ${USERNAME} admin-acct.json ${ENV} ${GOOGLE_PROJ} ${PASSWORD}
 python google-apps-domain/add-users-to-groups.py ${DOMAIN} ${USERNAME} admin-acct.json ${ENV} ${GOOGLE_PROJ} service-accts.txt
+
+# Add the billing account user to IAM
+gcloud beta projects add-iam-policy-binding ${GOOGLE_PROJ} \
+    --member="user:billing@${DOMAIN}" \
+    --role='roles/billing.projectManager'
+
