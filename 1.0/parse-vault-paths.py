@@ -37,6 +37,8 @@ class Secret:
             return encrypt_password(password_create())
         elif "user" in field or "name" in field:
             return path.split("/")[4]
+        elif "list" in field:
+            return "[]"
         else:
             return "unused"
 

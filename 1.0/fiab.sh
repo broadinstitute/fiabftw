@@ -6,8 +6,9 @@ ALLOCATOR_URL=$3
 GOOGLE_PROJ=$4
 GOOGLE_APPS_DOMAIN=$5
 DNS_DOMAIN=$6
-ENV=${7:-fiab}
-VAULT_TOKEN=${8:-$(cat .vault-token-fiabftw)}
+ADMIN_EMAIL=$7
+ENV=${8:-fiab}
+VAULT_TOKEN=${9:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=$VAULT_TOKEN
 
 CONFIGS_DIR=$PWD/fiab-configs
@@ -26,6 +27,7 @@ render_configs() {
     export GOOGLE_APPS_SUBDOMAIN=$GOOGLE_APPS_DOMAIN
     export DNS_DOMAIN=$DNS_DOMAIN
     export CUSTOM_VAULT_CONFIG=$VAULT_CONFIG_PATH
+    export BUCKET_TAG=${GOOGLE_PROJ}-${ENV}
     cp -r $CONFIGS_DIR/run-context/fiab/scripts/. FiaB/
     bash $CONFIGS_DIR/run-context/fiab/scripts/FiaB_configs.sh $PWD/FiaB $CONFIGS_DIR $VAULT_TOKEN $HOST_PATH $ENV Fiab_images.env $HOST_NAME fiab $VAULT_ADDR
 
@@ -75,7 +77,13 @@ stop_fiab() {
 }
 
 clear_db() {
-    $SSHCMD root@$HOST_IP "sudo rm -rf $BASE_PATH/mysqlstore/ $BASE_PATH/mongostore/ $BASE_PATH/es/ $BASE_PATH/opendjstore/ $BASE_PATH/ldapstore/"
+    $SSHCMD root@$HOST_IP "sudo rm -rf $HOST_PATH/mysqlstore/ $HOST_PATH/mongostore/ $HOST_PATH/es/ $HOST_PATH/opendjstore/ $HOST_PATH/ldapstore/"
+
+}
+
+populate_fiab() {
+    $SSHCMD root@$HOST_IP "sudo bash $POPULATE_PATH/basic-populate-fiab.sh $POPULATE_PATH $VAULT_TOKEN $ENV $DNS_DOMAIN $GOOGLE_PROJ $VAULT_ADDR"
+    $SSHCMD root@$HOST_IP "sudo bash $POPULATE_PATH/populate-consent-and-ontology.sh $POPULATE_PATH $VAULT_TOKEN $ENV $GOOGLE_APPS_DOMAIN $ADMIN_EMAIL $DNS_DOMAIN $VAULT_ADDR"
 
 }
 
@@ -83,6 +91,9 @@ if [ $COMMAND = "start" ]; then
     echo "starting fiab"
     render_configs
     start_fiab
+    echo "Sleeping for 4 minutes during fiab start..."
+    sleep 240
+    populate_fiab
 
 elif [ $COMMAND = "stop" ]; then
     echo "stopping fiab"

@@ -17,6 +17,7 @@ Other requirements:
     - Cloud Pub/Sub API
     - Identity and Access Management API
     - Genomics API
+    - Cloud Dataproc API
 - A [GSuite](https://gsuite.google.com/) account (hence referred to as `[google apps domain]`)
 - An admin user (hence referred to as `[admin user]`) in the Apps Domain who has also been added to the google project with the "Project Owner" IAM role
 - A DNS Domain for the project (hence referred to as `[dns domain]`) 
@@ -156,6 +157,10 @@ Generate leonardo Jupyter certs:
 export ENV=[env]
 sh fiab-configs/scripts/leonardo/generate_jupyter_secrets.sh
 ```
+You will be prompted to create a password, after which run:
+```aidl
+vault write secret/dsde/firecloud/$ENV/leonardo/secrets client_cert_password=[passwd]
+```
 
 Create a firewall rules for FiaB:
 ```
@@ -193,14 +198,14 @@ Where `[instance name]` is the name you wish to give to your GCE instance.  This
 
 4. Start Firecloud on the host:
 ```
-./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [env]
+./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
 ```
 
 5. TODO: basic populate
 
 #### To stop a fiab
 ```
-./fiab.sh stop [fiab host]
+./fiab.sh stop [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
 ```
 
 To perform more actions on your fiab host, use the Swagger API, accessible at `http://[allocator host]:80/apidocs/index.html`
