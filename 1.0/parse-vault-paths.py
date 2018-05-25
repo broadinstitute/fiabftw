@@ -9,8 +9,8 @@ def password_create():
     return passgen.passgen()
 
 
-def encrypt_password(passwd):
-    return passwd
+def AES256_create():
+    return passgen.passgen(length=43, letters=True, case='both') + "="
 
 
 class Secret:
@@ -33,8 +33,8 @@ class Secret:
             self.create_secret(path, path_suffix)
         elif "password" in field or field == "signing-secret":
             return password_create()
-        elif field == "gcs_tokenEncryptionKey":
-            return encrypt_password(password_create())
+        elif field == "gcs_tokenEncryptionKey" or field == "cryptokey":
+            return AES256_create()
         elif "user" in field or "name" in field:
             return path.split("/")[4]
         elif "list" in field:
