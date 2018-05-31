@@ -139,8 +139,10 @@ Select the appropriate billing account.  Under "Permissions", in the "Add member
 You can add additional users to the billing account, and they will be able to create/manage billing projects when they register with Firecloud.
 
 You will also need to login as the billing user and accept the Terms of Service:
-- Go to https://console.developers.google.com/terms/universal?pli=1
+- Open an incognito window
+- Go to https://console.cloud.google.com/start
 - Sign in as `billing@[google apps domain]` with the password you created in the previous step
+- Accept the Terms of Service
 
 ## Step 4: Generate google buckets
 
