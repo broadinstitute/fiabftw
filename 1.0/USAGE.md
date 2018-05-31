@@ -25,13 +25,24 @@ Within GSuite, FiaB needs
 
 ### Docker architecture
 
+
+
+All services run on the same IP, but in separate docker containers. Most services consist of an application container, a proxy container which HTTP/HTTPS traffic is routed through, and containers for any dependent databases or directories. They are differentiated by port number. 
+
+See the diagram below for a more detailed look at the container architecture.
+
+![Alt text](./screenshots/fiab-internal-infrastructure.png "Enable DwD")
+
+
+## Usage
+
 Once you've started FiaB on a GCE instance, you can map the IP of your instance onto the DNS entries corresponding to your SSL certs.  
 Modify the `/etc/hosts` file on your machine and add the following line, where `$DOMAIN` is your DNS domain (i.e. `fiabftw.firecloud.org`):
 ```
 [YOUR FIAB IP] firecloud-fiab.$DOMAIN firecloud-orchestration-fiab.$DOMAIN duos-fiab.$DOMAIN consent-fiab.$DOMAIN consent-ontology-fiab.$DOMAIN agora-fiab.$DOMAIN cromwell-fiab.$DOMAIN rawls-fiab.$DOMAIN sam-fiab.$DOMAIN thurloe-fiab.$DOMAIN leonardo-fiab.$DOMAIN
 ```
 
-All services run on the same IP, but are differentiated by port number.  To access each you will need the DNS name and port number, specifed below:
+Then, each service can be reached with its specific DNS name and port number:
 * Library Service (Agora) - `https://agora-fiab.$DOMAIN:20443`
 * Execution Service (Cromwell) - `https://cromwell-fiab.$DOMAIN:21443`
 * Firecloud UI - `https://firecloud-fiab.$DOMAIN:22443`
@@ -44,11 +55,27 @@ All services run on the same IP, but are differentiated by port number.  To acce
 * IAM Service (Sam) - `https://sam-fiab.$DOMAIN:29443`
 * Notebooks Service (Leonardo) - `https://leonardo-fiab.$DOMAIN:30443`
 
-Most services consist of an application container, a proxy container which HTTP/HTTPS traffic is routed through, and containers for any dependent databases or directories.
-See the diagram below for a more detailed look at the container architecture.
+### Debugging
 
-![Alt text](./screenshots/fiab-internal-infrastructure.png "Enable DwD")
+You can SSH onto your FiaB host via the gcloud CLI:
+```
+gcloud compute ssh --project [google proj] [fiab host]
+```
 
+Once inside the host, the configuration directories for each service, as well as the database and directory stores, can be found at `/FiaB`. 
+The database and directory stores (`mongostore`, `mysqlstore`, `ldapstore`, `opendjstore`) are where the database and directory containers write out their state, so that the state can persist
+even if the docker containers crash or are stopped.  Stopping FiaB will clear these directories, thus resetting the db state. 
+
+To view all running containers, run:
+```
+docker ps
+```
+
+To view the logs for a specific container, run:
+```
+docker logs [container name]
+```
+You can also tail the logs in real time by adding the `-t -f` flags to the above command.
 
 ## Running on multiple VMs
 FIAB is not a scalable, production-ready installation. It's useful for development, troubleshooting and testing. In production, Firecloud should be run on multiple machines. 
