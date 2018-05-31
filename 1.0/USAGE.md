@@ -44,6 +44,7 @@ All services run on the same IP, but are differentiated by port number.  To acce
 * IAM Service (Sam) - `https://sam-fiab.$DOMAIN:29443`
 * Notebooks Service (Leonardo) - `https://leonardo-fiab.$DOMAIN:30443`
 
+Most services consist of an application container, a proxy container which HTTP/HTTPS traffic is routed through, and containers for any dependent databases or directories.
 See the diagram below for a more detailed look at the container architecture.
 
 ![Alt text](./screenshots/fiab-internal-infrastructure.png "Enable DwD")
