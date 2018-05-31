@@ -206,7 +206,7 @@ Where `[instance name]` is the name you wish to give to your GCE instance.  This
 ./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
 ```
 
-For details on how to reach Firecloud and its APIs see the Docker Architecture section of the [Usage Documentation](./USAGE.md).
+For details on how to reach Firecloud and its APIs see the "Usage" section of the [Usage Documentation](./USAGE.md).
 
 #### To stop a fiab
 ```
