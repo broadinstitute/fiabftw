@@ -201,12 +201,12 @@ Where `[instance name]` is the name you wish to give to your GCE instance.  This
 
 3. If you want to run your fiab with a custom docker image for any service, edit `FiaB_images.env`.  Otherwise, all images will default to `dev`.
 
-4. Start Firecloud on the host:
+4. Start Firecloud on the host.  This will also run a basic populate.
 ```
 ./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
 ```
 
-5. TODO: basic populate
+For details on how to reach Firecloud and its APIs see the Docker Architecture section of the [Usage Documentation](./USAGE.md).
 
 #### To stop a fiab
 ```

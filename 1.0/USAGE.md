@@ -2,17 +2,49 @@
 
 ## Architecture
 
-describe the basic overall architecture here
+Firecloud-in-a-Box (FiaB) is a stack of docker containers that comprise the application Firecloud and its microservices and APIs, running on a Google Compute instance.
 
 ### Cloud Architecture
 
-explain nuances of gsuite vs gcloud vs fiab
+While the FiaB docker containers run on a single GCE instance, they utilize both GCloud and GSuite resources to function.  
+
+Within GCloud, FiaB needs 
+- a Google Billing Account to charge compute costs to 
+- oauth credentials to authenticate each service API
+- service accounts with different IAM privileges to perform actions on resources
+- Google buckets to store data
+- the ability to create/destroy GCE instances to run analysis on
+- access to a number of other GCloud APIs
+
+Within GSuite, FiaB needs
+- a number of user accounts to act via service accounts as authenticated users
+- a number of groups
+- API scopes on GCloud service accounts to allow them to perform actions on users and groups, including creating groups 
 
 ![Alt text](./screenshots/fiab-cloud-infrastructure.png "Enable DwD")
 
 ### Docker architecture
 
-explain how the fiab stack works, how to set up etc hosts, and how to access each service api
+Once you've started FiaB on a GCE instance, you can map the IP of your instance onto the DNS entries corresponding to your SSL certs.  
+Modify the `/etc/hosts` file on your machine and add the following line, where `$DOMAIN` is your DNS domain (i.e. `fiabftw.firecloud.org`):
+```
+[YOUR FIAB IP] firecloud-fiab.$DOMAIN firecloud-orchestration-fiab.$DOMAIN duos-fiab.$DOMAIN consent-fiab.$DOMAIN consent-ontology-fiab.$DOMAIN agora-fiab.$DOMAIN cromwell-fiab.$DOMAIN rawls-fiab.$DOMAIN sam-fiab.$DOMAIN thurloe-fiab.$DOMAIN leonardo-fiab.$DOMAIN
+```
+
+All services run on the same IP, but are differentiated by port number.  To access each you will need the DNS name and port number, specifed below:
+* Library Service (Agora) - `https://agora-fiab.$DOMAIN:20443`
+* Execution Service (Cromwell) - `https://cromwell-fiab.$DOMAIN:21443`
+* Firecloud UI - `https://firecloud-fiab.$DOMAIN:22443`
+* Firecloud API (Orchestration) - `https://firecloud-orchestration-fiab.$DOMAIN:23443`
+* Workspaces Service (Rawls) - `https://rawls-fiab.$DOMAIN:24443`
+* User Profile Service (Thurloe) - `https://thurloe-fiab.$DOMAIN:25443`
+* DUOS UI (Consent UI) - `https://duos-fiab.$DOMAIN:26443`
+* DUOS API (Consent) - `https://consent-fiab.$DOMAIN:27443`
+* Ontology - `https://consent-ontology-fiab.$DOMAIN:28443`
+* IAM Service (Sam) - `https://sam-fiab.$DOMAIN:29443`
+* Notebooks Service (Leonardo) - `https://leonardo-fiab.$DOMAIN:30443`
+
+See the diagram below for a more detailed look at the container architecture.
 
 ![Alt text](./screenshots/fiab-internal-infrastructure.png "Enable DwD")
 
