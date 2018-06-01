@@ -151,7 +151,7 @@ def populate_secrets_from_file(secrets, env, overwrite=False):
     for s,v in secrets.iteritems():
         k = s[s.find("(")+1:s.find(")")]
         secret_path = subprocess.check_output(k, shell=True, env=env)
-        body = {x: None for x in v}
+        body = {x.split(".")[0]: None for x in v}
         populate_secret(secret_path, body, overwrite=overwrite)
 
 

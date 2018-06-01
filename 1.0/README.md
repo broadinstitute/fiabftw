@@ -120,7 +120,7 @@ This will create the initial Firecloud groups and users, and add users and servi
 
 service | scopes
 --- | ---
-agora | https://www.googleapis.com/auth/admin.directory.groupmember.readonly <br> https://www.googleapis.com/auth/admin.directory.user
+agora | https://www.googleapis.com/auth/admin.directory.group.member.readonly <br> https://www.googleapis.com/auth/admin.directory.user
 billing | https://www.googleapis.com/auth/admin.directory.user <br> https://www.googleapis.com/auth/cloud-billing <br> https://www.googleapis.com/auth/cloud-platform
 rawls | https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user
 firecloud | https://www.googleapis.com/auth/cloud-platform <br> https://www.googleapis.com/auth/devstorage.full_control <br> https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user <br> email <br> profile <br> openid
@@ -169,7 +169,7 @@ You will be prompted to create a password, after which run:
 vault write secret/dsde/firecloud/$ENV/leonardo/secrets client_cert_password=[passwd]
 ```
 
-Create a firewall rules for FiaB:
+Create firewall rules for FiaB:
 ```
 ./gce/create-firewall-rules.sh [google proj]
 ```
