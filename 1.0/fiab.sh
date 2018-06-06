@@ -74,6 +74,14 @@ stop_fiab() {
 
     $SSHCMD root@$HOST_IP "bash $HOST_PATH/stop_FiaB.sh $HOST_PATH"
 
+    # Deallocate the fiab
+    docker run --rm -v $PWD/output:/output \
+        -e GOOGLE_PROJ=${GOOGLE_PROJ} \
+        -e FIAB_HOST=${HOST_NAME} \
+        -e ALLOCATOR_URL=${ALLOCATOR_URL} \
+        broadinstitute/dsp-toolbox:allocator fiab stop-fiab
+
+
 }
 
 clear_db() {

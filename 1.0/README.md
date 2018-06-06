@@ -36,7 +36,7 @@ The following environment variables will be referenced in the remainder of this 
 - `[google apps domain]` - your GSuite account domain (i.e. `fiabftw.firecloud.org`)
 - `[admin email]` - an admin account to act as script runner.  Should be in the google apps domain and a Project Owner in the google project.
 - `[dns domain]` - the DNS domain with associated SSL certs (i.e. `fiabftw.broadinstitute.org`)
-- `[env]` - This is an internal variable that allows for the possibility of standing up multiple fiab "environments" with their own service accounts, groups, and DNS domains.  Will default to a single env, `fiab`.
+- `[env]` - This is an internal variable that allows for the possibility of standing up multiple fiab "environments" with their own service accounts, groups, and DNS domains.  Will default to a single env, `fiab`.  If you are using the default, this variable does not need to be passed as a parameter to the setup scripts.
 - `[vault token]` -  See Step 1 for details.  Will default to reading from `.vault-token-fiabftw` for all scripts. 
 
 ## Step 1: Vault
@@ -125,6 +125,14 @@ billing | https://www.googleapis.com/auth/admin.directory.user <br> https://www.
 rawls | https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user
 firecloud | https://www.googleapis.com/auth/cloud-platform <br> https://www.googleapis.com/auth/devstorage.full_control <br> https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user <br> email <br> profile <br> openid
 sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.user
+
+### Add groups to the organization
+
+**Manual Step**: Two of the newly-generated groups, the Firecloud Project Editors (`firecloud-project-editors-[env]@[domain]`)
+and the Firecloud Project Owners (`firecloud-project-owners@[domain]`) need to be given IAM permissions at the organization level. 
+Follow steps 1-3 [here](https://cloud.google.com/resource-manager/docs/creating-managing-organization#adding_an_organization_admin), and then add the groups with the following roles:
+* `firecloud-project-editors-[env]@[domain]` - Project Editor
+* `firecloud-project-owners@[domain]` - Project Owner
 
 ## Step 3: Billing
 
