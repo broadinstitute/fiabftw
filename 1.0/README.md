@@ -204,14 +204,10 @@ Where `[instance name]` is the name you wish to give to your GCE instance.  This
 ```$xslt
 ./create-fiab-instance.sh [google proj] [name] [allocator url] [env]
 ```
-2. If you have not pulled the fiab-configs recently (Step 5), run the following script to update your configs and any vault secrets:
-```
-./initialize-secrets.sh [env]
-```
 
-3. If you want to run your fiab with a custom docker image for any service, edit `FiaB_images.env`.  Otherwise, all images will default to `dev`.
+2. If you want to run your fiab with a custom docker image for any service, edit `FiaB_images.env`.  Otherwise, all images will default to `dev`.
 
-4. Start Firecloud on the host.  This will also run a basic populate.
+3. Start Firecloud on the host.  This will also run a basic populate.
 ```
 ./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
 ```

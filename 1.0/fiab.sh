@@ -19,6 +19,10 @@ VAULT_CONFIG_PATH=/w/vault/vault-config.json
 SSHCMD="ssh -o UserKnownHostsFile=/dev/null -o CheckHostIP=no -o StrictHostKeyChecking=no"
 
 
+pull_configs() {
+    ./initialize-secrets.sh $ENV
+
+}
 render_configs() {
     # render configs and copy them to the host
     mkdir -p FiaB
@@ -97,6 +101,7 @@ populate_fiab() {
 
 if [ $COMMAND = "start" ]; then
     echo "starting fiab"
+    pull_configs
     render_configs
     start_fiab
     echo "Sleeping for 4 minutes during fiab start..."

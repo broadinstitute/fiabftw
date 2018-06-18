@@ -19,11 +19,13 @@ services:
       POSTGRES_URL: 'postgresql://jacalloc:jacalloc123@postgres:5432/jacalloc'
       PYTHONUNBUFFERED: 0
       RESOURCE_BACKEND: 'gce'
+      OAUTH_PROJECT: {{$googleProj}}
 
     volumes:
       - ./admin-acct.json:/app/{{$googleProj}}.json:ro
       - ./settings.env:/app/{{$googleProj}}.env:ro
       - ./startup.sh:/app/startup.sh:ro
+      - ./index.html:/app/templates/flasgger/index.html:ro
     depends_on:
       - postgres
     links:

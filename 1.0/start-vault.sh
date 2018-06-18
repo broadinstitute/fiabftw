@@ -19,3 +19,6 @@ docker run -v $PWD/vault:/app \
            -e ENVIRONMENT=$ENV \
            -e VAULT_TOKEN=$VAULT_TOKEN \
            broadinstitute/dsde-toolbox:latest render-templates.sh
+
+# Copy the vault config for later use in rendering allocator configs
+cp vault/vault-config.json allocator

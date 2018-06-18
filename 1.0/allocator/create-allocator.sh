@@ -22,12 +22,14 @@ docker run -v $PWD/allocator:/app \
            -e OUT_PATH=/app \
            -e ENVIRONMENT=$ENVIRONMENT \
            -e GOOGLE_PROJ=$GOOGLE_PROJ \
-           broadinstitute/dsde-toolbox:latest render-templates.sh
+           -e ALLOCATOR_URL=http://${INSTANCE_IP}:80 \
+           -e CONSUL_CONFIG=/app/vault-config.json \
+           broadinstitute/dsde-toolbox:dev render-templates.sh
 
 # Copy configs onto host and start allocator
 gcloud compute --project ${GOOGLE_PROJ} scp --recurse ./allocator root@${INSTANCE_NAME}:/
 gcloud compute --project ${GOOGLE_PROJ} scp admin-acct.json root@${INSTANCE_NAME}:/allocator
 gcloud compute --project ${GOOGLE_PROJ} ssh root@${INSTANCE_NAME} --command="bash /allocator/start-allocator.sh"
 
-echo "The allocator can be reached at ${INSTANCE_IP}:80/apidocs/index.html"
+echo "The allocator can be reached at http://${INSTANCE_IP}:80/apidocs/index.html"
 echo "Set ALLOCATOR_HOST=http://${INSTANCE_IP}:80/ for future scripts."
