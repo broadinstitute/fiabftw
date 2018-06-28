@@ -197,6 +197,8 @@ For more about overwriting/editing vault secrets, see the Secrets.md document.
 ./allocator/create-allocator.sh [google proj] [instance name] [env]
 ```
 Where `[instance name]` is the name you wish to give to your GCE instance.  This will create a GCE instance and write out its IP, which should be used as the `[allocator url]` in Step 7.
+You will also need to add `http://[allocator url]/flasgger_static/o2c.html` to the authorized redirect URIs for the
+Refresh Token Oauth Credential in gcloud APIs.
 
 ## Step 8: Start a fiab
 

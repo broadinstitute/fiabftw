@@ -11,6 +11,7 @@ ENV=${8:-fiab}
 VAULT_TOKEN=${9:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=$VAULT_TOKEN
 
+ADMIN_ACCT_PATH=admin-acct.json
 CONFIGS_DIR=$PWD/fiab-configs
 BASE_PATH="/"
 HOST_PATH="/FiaB"
@@ -59,10 +60,12 @@ start_fiab() {
 
     # Allocate fiab as "in use"
     docker run --rm -v $PWD/output:/output \
+        -v $PWD/${ADMIN_ACCT_PATH}:/root/service-acct.json \
+        -e SERVICE_ACCT=/root/service-acct.json \
         -e GOOGLE_PROJ=${GOOGLE_PROJ} \
         -e FIAB_HOST=${HOST_NAME} \
         -e ALLOCATOR_URL=${ALLOCATOR_URL} \
-        broadinstitute/dsp-toolbox:allocator fiab start-fiab
+        broadinstitute/dsp-toolbox fiab start-fiab
 
 }
 
@@ -80,10 +83,12 @@ stop_fiab() {
 
     # Deallocate the fiab
     docker run --rm -v $PWD/output:/output \
+        -v $PWD/${ADMIN_ACCT_PATH}:/root/service-acct.json \
+        -e SERVICE_ACCT=/root/service-acct.json \
         -e GOOGLE_PROJ=${GOOGLE_PROJ} \
         -e FIAB_HOST=${HOST_NAME} \
         -e ALLOCATOR_URL=${ALLOCATOR_URL} \
-        broadinstitute/dsp-toolbox:allocator fiab stop-fiab
+        broadinstitute/dsp-toolbox fiab stop-fiab
 
 
 }
@@ -99,6 +104,7 @@ populate_fiab() {
 
 }
 
+docker pull broadinstitute/dsp-toolbox
 if [ $COMMAND = "start" ]; then
     echo "starting fiab"
     pull_configs

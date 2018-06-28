@@ -6,6 +6,8 @@ ENVIRONMENT=${3:-fiab}
 VAULT_TOKEN=${4:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=${VAULT_TOKEN}
 
+set -e
+
 ./gce/create-instance.sh ${GOOGLE_PROJ} ${INSTANCE_NAME}
 INSTANCE_IP=$(gcloud --format="value(networkInterfaces[0].accessConfigs[0].natIP)" compute instances --project ${GOOGLE_PROJ} list --filter="name:( ${INSTANCE_NAME} )")
 echo "Sleeping for a minute during host instantiation"
