@@ -40,13 +40,15 @@ render_configs() {
 
 start_fiab() {
     # Make sure the fiab host exists
-    response=$(curl -X GET --write-out "%{http_code}\n" --silent --output "allocator-get.json" $ALLOCATOR_URL/resources/$HOST_NAME)
-    if [ $response -ne 200 ]; then
-        echo "FiaB host not found!"
-        cat allocator-get.json
-        exit 1
-    fi
-    HOST_IP=$(cat allocator-get.json | jq '.ip' --raw-output)
+    docker run --rm -v $PWD/output:/output \
+        -v $PWD/${ADMIN_ACCT_PATH}:/root/service-acct.json \
+        -e SERVICE_ACCT=/root/service-acct.json \
+        -e GOOGLE_PROJ=${GOOGLE_PROJ} \
+        -e FIAB_HOST=${HOST_NAME} \
+        -e ALLOCATOR_URL=${ALLOCATOR_URL} \
+        broadinstitute/dsp-toolbox fiab list
+
+    HOST_IP=$(cat output/host.json | jq '.ip' --raw-output)
 
     # Copy configs to fiab host
     $SSHCMD root@$HOST_IP "mkdir -p /FiaB"
@@ -71,13 +73,14 @@ start_fiab() {
 
 stop_fiab() {
     # Make sure the fiab host exists
-    response=$(curl -X GET --write-out "%{http_code}\n" --silent --output "allocator-get.json" $ALLOCATOR_URL/resources/$HOST_NAME)
-    if [ $response -ne 200 ]; then
-        echo "FiaB host not found!"
-        cat allocator-get.json
-        exit 1
-    fi
-    HOST_IP=$(cat allocator-get.json | jq '.ip' --raw-output)
+    docker run --rm -v $PWD/output:/output \
+        -v $PWD/${ADMIN_ACCT_PATH}:/root/service-acct.json \
+        -e SERVICE_ACCT=/root/service-acct.json \
+        -e GOOGLE_PROJ=${GOOGLE_PROJ} \
+        -e FIAB_HOST=${HOST_NAME} \
+        -e ALLOCATOR_URL=${ALLOCATOR_URL} \
+        broadinstitute/dsp-toolbox fiab listt 1
+    HOST_IP=$(cat output/host.json | jq '.ip' --raw-output)
 
     $SSHCMD root@$HOST_IP "bash $HOST_PATH/stop_FiaB.sh $HOST_PATH"
 
