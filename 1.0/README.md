@@ -221,4 +221,9 @@ For details on how to reach Firecloud and its APIs see the "Usage" section of th
 ./fiab.sh stop [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
 ```
 
+#### To stop a fiab and clear its databases
+```
+./fiab.sh stopclear [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
+```
+
 To perform more actions on your fiab host, use the Swagger API, accessible at `http://[allocator host]:80/apidocs/index.html`

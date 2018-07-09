@@ -33,7 +33,7 @@ class Secret:
             self.create_secret(path, path_suffix)
         elif "password" in field or field == "signing-secret":
             return password_create()
-        elif field == "gcs_tokenEncryptionKey" or field == "cryptokey":
+        elif field == "gcs_tokenEncryptionKey" or field == "cryptokey" or field == "workflow_options_encryption_key":
             return AES256_create()
         elif "user" in field or "name" in field:
             return path.split("/")[4]

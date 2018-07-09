@@ -79,7 +79,7 @@ stop_fiab() {
         -e GOOGLE_PROJ=${GOOGLE_PROJ} \
         -e FIAB_HOST=${HOST_NAME} \
         -e ALLOCATOR_URL=${ALLOCATOR_URL} \
-        broadinstitute/dsp-toolbox fiab listt 1
+        broadinstitute/dsp-toolbox fiab list
     HOST_IP=$(cat output/host.json | jq '.ip' --raw-output)
 
     $SSHCMD root@$HOST_IP "bash $HOST_PATH/stop_FiaB.sh $HOST_PATH"
@@ -107,6 +107,11 @@ populate_fiab() {
 
 }
 
+unpopulate_fiab() {
+    $SSHCMD root@$HOST_IP "sudo bash $POPULATE_PATH/basic-unpopulate-fiab.sh $POPULATE_PATH $VAULT_TOKEN $ENV"
+
+}
+
 docker pull broadinstitute/dsp-toolbox
 if [ $COMMAND = "start" ]; then
     echo "starting fiab"
@@ -120,8 +125,12 @@ if [ $COMMAND = "start" ]; then
 elif [ $COMMAND = "stop" ]; then
     echo "stopping fiab"
     stop_fiab
-    clear_db
 
+elif [ $COMMAND = "stopclear" ]; then
+    echo "stopping fiab and clearing data"
+    unpopulate_fiab
+    stop_fiab
+    clear_db
 else
     echo "Not a valid command.  Try either 'start' or 'stop'"
 fi
