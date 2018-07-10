@@ -77,6 +77,14 @@ docker logs [container name]
 ```
 You can also tail the logs in real time by adding the `-t -f` flags to the above command.
 
+## Migrations
+
+As the Firecloud service stack continues to develop, changes may be made in resources outside of the docker images or configs, such as changes to vault secrets or google resources (service accounts, groups, firewall rules, etc).
+To keep abreast of the latest changes, run the migration script regularly:
+```
+./migrate.sh [google proj] [google apps domain] [dns domain] [admin email] [env]
+```
+
 ## Running on multiple VMs
 FIAB is not a scalable, production-ready installation. It's useful for development, troubleshooting and testing. In production, Firecloud should be run on multiple machines. 
 
