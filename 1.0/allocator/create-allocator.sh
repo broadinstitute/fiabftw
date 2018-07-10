@@ -2,8 +2,9 @@
 
 GOOGLE_PROJ=$1
 INSTANCE_NAME=$2
-ENVIRONMENT=${3:-fiab}
-VAULT_TOKEN=${4:-$(cat .vault-token-fiabftw)}
+DNS_DOMAIN=$3
+ENVIRONMENT=${4:-fiab}
+VAULT_TOKEN=${5:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=${VAULT_TOKEN}
 
 set -e
@@ -15,6 +16,16 @@ sleep 60
 
 gcloud compute --project ${GOOGLE_PROJ} scp ./gce/provision-instance.sh root@${INSTANCE_NAME}:/tmp
 gcloud compute --project ${GOOGLE_PROJ} ssh root@${INSTANCE_NAME} --command="bash /tmp/provision-instance.sh"
+
+# Create a DNS record for the instance
+gcloud dns record-sets transaction start -z=fiabftw --project=${GOOGLE_PROJ}
+gcloud dns record-sets transaction add -z=fiabftw \
+    --name="fiab-allocator.${DNS_DOMAIN}." \
+    --type=A \
+    --ttl=300 \
+    --project=${GOOGLE_PROJ} "${INSTANCE_IP}"
+gcloud dns record-sets transaction execute -z=fiabftw --project=${GOOGLE_PROJ}
+
 
 # Render allocator configs
 echo GOOGLE_PROJ=$GOOGLE_PROJ > allocator/proj.env

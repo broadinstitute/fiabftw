@@ -5,6 +5,7 @@
 
 GOOGLE_PROJ=$1
 INSTANCE_NAME=$2
+NETWORK=${3:-default}
 
 gcloud compute instances --project ${GOOGLE_PROJ} create ${INSTANCE_NAME} \
     --boot-disk-type pd-standard \
@@ -13,4 +14,5 @@ gcloud compute instances --project ${GOOGLE_PROJ} create ${INSTANCE_NAME} \
     --image-family ubuntu-1710 \
     --machine-type n1-standard-8 \
     --tags http-server \
+    --network ${NETWORK} \
     --zone us-central1-a

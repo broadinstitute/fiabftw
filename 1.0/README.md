@@ -182,6 +182,11 @@ Create firewall rules for FiaB:
 ./gce/create-firewall-rules.sh [google proj]
 ```
 
+Create a DNS zone for your domain:
+```
+./gce/create-dns-zone.sh [google proj] [dns domain]
+```
+
 ## Step 6: Generate remaining secrets
 
 Pull the fiab configs and generate remaining secrets:
