@@ -12,3 +12,6 @@ Migration scripts can utilize the following environment variables:
 * `ADMIN_ACCT`
 * `ENV`
 * `VAULT_TOKEN`
+
+## Migrations
+* *001_requestor_pays_role_create* - create a RequestorPays role in the organzation with `serviceusage.services.use` permissions.
