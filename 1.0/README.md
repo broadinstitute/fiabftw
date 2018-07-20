@@ -200,7 +200,13 @@ Where `[instance name]` is the name you wish to give to your GCE instance.  This
 You will also need to add `http://[allocator url]/flasgger_static/o2c.html` to the authorized redirect URIs for the
 Refresh Token Oauth Credential in gcloud APIs.
 
-## Step 8: Start a fiab
+## Step 8: Run any migrations
+
+```
+./migrate.sh [google proj] [google apps domain] [dns domain] [admin email] [env]
+```
+
+## Step 9: Start a fiab
 
 1. Create and provision the fiab host:
 ```$xslt
