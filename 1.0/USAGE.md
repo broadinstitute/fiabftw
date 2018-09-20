@@ -39,7 +39,7 @@ See the diagram below for a more detailed look at the container architecture.
 Once you've started FiaB on a GCE instance, you can map the IP of your instance onto the DNS entries corresponding to your SSL certs.  
 Modify the `/etc/hosts` file on your machine and add the following line, where `$DOMAIN` is your DNS domain (i.e. `fiabftw.firecloud.org`):
 ```
-[YOUR FIAB IP] firecloud-fiab.$DOMAIN firecloud-orchestration-fiab.$DOMAIN duos-fiab.$DOMAIN consent-fiab.$DOMAIN consent-ontology-fiab.$DOMAIN agora-fiab.$DOMAIN cromwell-fiab.$DOMAIN rawls-fiab.$DOMAIN sam-fiab.$DOMAIN thurloe-fiab.$DOMAIN leonardo-fiab.$DOMAIN
+[YOUR FIAB IP] firecloud-fiab.$DOMAIN firecloud-orchestration-fiab.$DOMAIN duos-fiab.$DOMAIN consent-fiab.$DOMAIN consent-ontology-fiab.$DOMAIN agora-fiab.$DOMAIN cromwell-fiab.$DOMAIN rawls-fiab.$DOMAIN sam-fiab.$DOMAIN thurloe-fiab.$DOMAIN leonardo-fiab.$DOMAIN bond-fiab.$DOMAIN martha-fiab.$DOMAIN
 ```
 
 Then, each service can be reached with its specific DNS name and port number:
@@ -54,6 +54,8 @@ Then, each service can be reached with its specific DNS name and port number:
 * Ontology - `https://consent-ontology-fiab.$DOMAIN:28443`
 * IAM Service (Sam) - `https://sam-fiab.$DOMAIN:29443`
 * Notebooks Service (Leonardo) - `https://leonardo-fiab.$DOMAIN:30443`
+* Account Linking Service (Bond) - `https://bond-fiab.$DOMAIN:31443`
+* Martha - `https://martha-fiab.$DOMAIN:32443`
 
 ### Debugging
 
