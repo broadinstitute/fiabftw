@@ -16,3 +16,4 @@ Migration scripts can utilize the following environment variables:
 ## Migrations
 * *001_requestor_pays_role_create* - create a RequestorPays role in the organzation with `serviceusage.services.use` permissions.
 * *002_bond_martha_fw_rules* - add the bond and martha ports to the fiab firewall rule
+* *003_sam_pooling_accts* - create new service accounts for Sam, give them Domain-wide Delegation (manual step), and GSuite API scopes (manual step)
