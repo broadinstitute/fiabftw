@@ -35,40 +35,7 @@ os_dist_name="${1:-${OS_DIST_NAME:-NOT_SET}}"
 
 
 detect_os() {
-
-    local _python_platform_string
-
-    if command -v python >/dev/null 2>&1; then
-        _python_platform_string="$(python -c "import platform; print(platform.platform())")"
-        _python_platform_string="$(echo "${_python_platform_string}" | tr 'A-Z' 'a-z')"
-
-        case ${_python_platform_string} in
-
-            *debian*)
-                echo "debian"
-                return 0
-                ;;
-            *ubuntu*)
-                echo "ubuntu"
-                return 0
-                ;;
-            *centos*)
-                echo "centos"
-                return 0
-                ;;
-            *redhat*)
-                echo "redhat"
-                return 0
-                ;;
-            *)
-                echo "UNSUPPORTED_OS_${_python_platform_string}"
-                return 1
-                ;;
-        esac
-    else
-        echo "PYTHON_NOT_FOUND"
-        return 1
-    fi
+    cat /etc/*_version | sed -n '2p' | cut -d' ' -f1 | tr '[:upper:]' '[:lower:]'
 }
 
 

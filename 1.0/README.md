@@ -59,6 +59,8 @@ vault init
 # Follow steps to unseal vault
 # This should also generate a root token which you store should at ".vault-token-fiabftw" at the root of this project
 vault unseal
+
+# NOTE: be sure to save the unseal keys somewhere secure
 ```
 
 ## Step 2: Generate credentials, users, and groups
@@ -116,7 +118,7 @@ accounts to groups in GSuite.
 
 This will create the initial Firecloud groups and users, and add users and service accounts to groups.
 
-**Manual Step**: [Add scopes](#manual-step-authorize-api-scopes) to the following services accounts in the Admin Console (remember that you have to use the service account `client_id` as the Client Name):
+**Manual Step**: [Add scovaulpes](#manual-step-authorize-api-scopes) to the following services accounts in the Admin Console (remember that you have to use the service account `client_id` as the Client Name):
 
 service | scopes
 --- | ---
