@@ -2,7 +2,7 @@
 
 SERVICE=$1
 CREDS_FILE_PATH=$2
-ENV=$3
+ENV=${3:-fiab}
 VAULT_TOKEN=${4:-$(cat .vault-token-fiabftw)}
 export VAULT_TOKEN=$VAULT_TOKEN
 
