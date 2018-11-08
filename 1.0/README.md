@@ -8,6 +8,7 @@ You will need the following software installed on your workspace to run the set 
 - [Vault](https://www.vaultproject.io/downloads.html)
 - [gcloud CLI](https://cloud.google.com/sdk/gcloud/)
 - [jq](https://stedolan.github.io/jq/)
+- Python libraries: google-api-python-client, oauth2client
 
 Other requirements:
 - A [Google Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) (hence referred to as `[google project]`) with a billing account linked to it and the following APIs enabled:
@@ -88,11 +89,14 @@ account (it should have the same name as your admin email).  Click the "more opt
 
 - [ ] In the Admin Console, go to Security -> Advanced settings -> Manage API client access. 
 - [ ] From the json of your service account, grab the `client_id`.  Enter it as "Client Name" and enter the following as
- comma-separated API Scopes and then click "Authorize": 
-    * https://www.googleapis.com/auth/admin.directory.customer 
-    * https://www.googleapis.com/auth/admin.directory.group 
-    * https://www.googleapis.com/auth/admin.directory.rolemanagement
-    * https://www.googleapis.com/auth/admin.directory.user 
+ comma-separated API Scopes and then click "Authorize":
+ 
+```
+https://www.googleapis.com/auth/admin.directory.customer,<br>
+https://www.googleapis.com/auth/admin.directory.group,<br>
+https://www.googleapis.com/auth/admin.directory.rolemanagement,<br>
+https://www.googleapis.com/auth/admin.directory.user 
+```
 
 ![Alt text](./screenshots/grant_api_scopes.png "Grant API scopes")
     
@@ -123,11 +127,11 @@ This will create the initial Firecloud groups and users, and add users and servi
 
 service | scopes
 --- | ---
-agora | https://www.googleapis.com/auth/admin.directory.group.member.readonly <br> https://www.googleapis.com/auth/admin.directory.user
-billing | https://www.googleapis.com/auth/admin.directory.user <br> https://www.googleapis.com/auth/cloud-billing <br> https://www.googleapis.com/auth/cloud-platform
-rawls | https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user
-firecloud | https://www.googleapis.com/auth/cloud-platform <br> https://www.googleapis.com/auth/devstorage.full_control <br> https://www.googleapis.com/auth/admin.directory.group <br> https://www.googleapis.com/auth/admin.directory.user <br> email <br> profile <br> openid
-sam | https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/apps.groups.settings
+agora | https://www.googleapis.com/auth/admin.directory.group.member.readonly,<br> https://www.googleapis.com/auth/admin.directory.user
+billing | https://www.googleapis.com/auth/admin.directory.user,<br> https://www.googleapis.com/auth/cloud-billing,<br> https://www.googleapis.com/auth/cloud-platform
+rawls | https://www.googleapis.com/auth/admin.directory.group,<br> https://www.googleapis.com/auth/admin.directory.user
+firecloud | https://www.googleapis.com/auth/cloud-platform,<br> https://www.googleapis.com/auth/devstorage.full_control,<br> https://www.googleapis.com/auth/admin.directory.group,<br> https://www.googleapis.com/auth/admin.directory.user,<br> email,<br> profile,<br> openid
+sam | https://www.googleapis.com/auth/admin.directory.group,<br> https://www.googleapis.com/auth/admin.directory.user,<br> https://www.googleapis.com/auth/apps.groups.settings
 
 ### Add groups to the organization
 
