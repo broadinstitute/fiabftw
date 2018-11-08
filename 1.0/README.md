@@ -7,6 +7,7 @@ You will need the following software installed on your workspace to run the set 
 - [Docker](https://www.docker.com/community-edition)
 - [Vault](https://www.vaultproject.io/downloads.html)
 - [gcloud CLI](https://cloud.google.com/sdk/gcloud/)
+- [jq](https://stedolan.github.io/jq/)
 
 Other requirements:
 - A [Google Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) (hence referred to as `[google project]`) with a billing account linked to it and the following APIs enabled:
