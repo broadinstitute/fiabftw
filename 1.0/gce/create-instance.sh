@@ -5,12 +5,13 @@
 
 GOOGLE_PROJ=$1
 INSTANCE_NAME=$2
+MACHINE_TYPE=${3:-n1-standard-8}
 
 gcloud compute instances --project ${GOOGLE_PROJ} create ${INSTANCE_NAME} \
     --boot-disk-type pd-standard \
     --boot-disk-size 50 \
     --image-project ubuntu-os-cloud \
-    --image-family ubuntu-1710 \
-    --machine-type n1-standard-8 \
+    --image-family ubuntu-1810 \
+    --machine-type ${MACHINE_TYPE} \
     --tags http-server \
     --zone us-central1-a

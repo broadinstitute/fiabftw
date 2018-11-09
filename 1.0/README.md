@@ -59,6 +59,8 @@ vault init
 # Follow steps to unseal vault
 # This should also generate a root token which you store should at ".vault-token-fiabftw" at the root of this project
 vault unseal
+
+# NOTE: be sure to save the unseal keys somewhere secure; you will need them should you ever reseal vault
 ```
 
 ## Step 2: Generate credentials, users, and groups
