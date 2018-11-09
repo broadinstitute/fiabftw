@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 GOOGLE_PROJ=$1
-ENV=$2
+ENV=${2:-fiab}
 BUCKET_TAG=${3:-$GOOGLE_PROJ-$ENV}
 VAULT_TOKEN=${4:-$(cat .vault-token-fiabftw)}
 
