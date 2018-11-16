@@ -8,7 +8,7 @@ You will need the following software installed on your workspace to run the set 
 - [Vault](https://www.vaultproject.io/downloads.html)
 - [gcloud CLI](https://cloud.google.com/sdk/gcloud/)
 - [jq](https://stedolan.github.io/jq/)
-- Python libraries: google-api-python-client, oauth2client
+- Python libraries: google-api-python-client, oauth2client, passgen
 
 Other requirements:
 - A [Google Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) (hence referred to as `[google project]`) with a billing account linked to it and the following APIs enabled:
@@ -203,7 +203,7 @@ For more about overwriting/editing vault secrets, see the Secrets.md document.
 ```$xslt
 ./allocator/create-allocator.sh [google proj] [instance name] [env]
 ```
-Where `[instance name]` is the name you wish to give to your GCE instance.  This will create a GCE instance and write out its IP, which should be used as the `[allocator url]` in Step 7.
+Where `[instance name]` is the name you wish to give to your GCE instance.  This will create a GCE instance and write out its IP, which should be used as the `[allocator url]` in Step 9.
 You will also need to add `http://[allocator url]/flasgger_static/o2c.html` to the authorized redirect URIs for the
 Refresh Token Oauth Credential in gcloud APIs.
 
