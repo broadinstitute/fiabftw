@@ -43,7 +43,7 @@ do
     if [ $acct_exists -ne 0 ]; then
         echo "$name not found. Creating..."
 
-        create_acct $gcloud_name $vault_name secret/dsde/firecloud/$ENV/sam/service_accounts
+        create_acct $gcloud_name $vault_name secret/dsde/firecloud/$ENV/sam/service_accounts/${vault_name}
 
         read -r -p "$(echo -e "[MANUAL STEP] $(tput bold)Enable Domain-wide Delegation on $gcloud_name in the GCloud console.$(tput sgr0) \nFor further instructions, see https://github.com/broadinstitute/fiabftw/blob/master/1.0/README.md#manual-step-enable-domain-wide-delegation.  \nDone? [Y/n] ")" resp
         if [ "$resp" != "Y" ]; then

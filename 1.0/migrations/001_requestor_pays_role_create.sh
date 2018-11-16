@@ -2,8 +2,9 @@
 
 set -e
 
+echo "Google apps: ${GOOGLE_APPS_DOMAIN}"
 organization=$(gcloud organizations list | grep ${GOOGLE_APPS_DOMAIN} | awk '{print $2}')
-
+echo "Org: ${organization}"
 echo "Checking if Requestor Pays role exists..."
 list_role=0
 gcloud iam roles describe --organization=$organization RequestorPays --quiet || list_role=$?
