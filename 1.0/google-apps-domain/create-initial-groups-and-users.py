@@ -66,6 +66,10 @@ if __name__ == '__main__':
     google_proj = sys.argv[5]
     default_password = sys.argv[6]
 
+    print "Creating directory service for {}".format(user_email)
     directory = create_directory_service(user_email, svc_acct)
+    print "Setting up firecloud users with default password {}".format(
+        default_password)
     set_up_firecloud_users(directory, domain, default_password)
+    print "Setting up firecloud groups for project {}".format(google_proj)
     set_up_firecloud_groups(directory, domain, env, google_proj)

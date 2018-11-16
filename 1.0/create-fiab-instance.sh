@@ -14,6 +14,7 @@ vault read -format=json secret/dsde/firecloud/admin-account.json | jq '.data' > 
 
 # use dsp-toolbox to create fiab host
 docker pull broadinstitute/dsp-toolbox
+echo "Running dsp-toolbox fiab create..."
 docker run --rm -v $PWD/output:/output \
     -v $PWD/admin-acct.json:/root/service-acct.json \
     -e SERVICE_ACCT=/root/service-acct.json \
@@ -28,14 +29,18 @@ docker run --rm -v $PWD/output:/output \
 SSH_HOST=$(jq --raw-output '.ip' output/host.json)
 HOST_NAME=$(jq --raw-output '.name' output/host.json)
 
+echo "Host: ${SSH_HOST} name: ${HOST_NAME}"
+
 echo "Now sleeping for 5 minutes during host instantiation."
 sleep 240
 
 # Provision host
+echo "Running gce/provision-instance.sh on the host."
 gcloud compute --project ${GOOGLE_PROJ} scp ./gce/provision-instance.sh root@${HOST_NAME}:/tmp
 gcloud compute --project ${GOOGLE_PROJ} ssh root@${HOST_NAME} --command="bash /tmp/provision-instance.sh"
 
 # make fiab run-able
+echo "Running dsp-toolbox fiab start..."
 docker run --rm -v $PWD/output:/output \
     -v $PWD/admin-acct.json:/root/service-acct.json \
     -e SERVICE_ACCT=/root/service-acct.json \
