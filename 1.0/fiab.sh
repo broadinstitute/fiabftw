@@ -17,7 +17,7 @@ BASE_PATH="/"
 HOST_PATH="/FiaB"
 POPULATE_PATH="${HOST_PATH}/fiab-populate"
 VAULT_CONFIG_PATH=/w/vault/vault-config.json
-SSHCMD="ssh -o UserKnownHostsFile=/dev/null -o CheckHostIP=no -o StrictHostKeyChecking=no"
+SSHCMD="gcloud compute --project ${GOOGLE_PROJ} ssh root@${HOST_NAME}"
 
 
 pull_configs() {
@@ -34,32 +34,26 @@ render_configs() {
     export CUSTOM_VAULT_CONFIG=$VAULT_CONFIG_PATH
     export BUCKET_TAG=${GOOGLE_PROJ}-${ENV}
     cp -r $CONFIGS_DIR/run-context/fiab/scripts/. FiaB/
-    bash $CONFIGS_DIR/run-context/fiab/scripts/FiaB_configs.sh $PWD/FiaB $CONFIGS_DIR $VAULT_TOKEN $HOST_PATH $ENV Fiab_images.env $HOST_NAME fiab $VAULT_ADDR
+    bash $CONFIGS_DIR/run-context/fiab/scripts/FiaB_configs.sh $PWD/FiaB $CONFIGS_DIR $VAULT_TOKEN $HOST_PATH $ENV FiaB_images.env $HOST_NAME fiab $VAULT_ADDR
 
 }
 
 start_fiab() {
     # Make sure the fiab host exists
-    docker run --rm -v $PWD/output:/output \
-        -v $PWD/${ADMIN_ACCT_PATH}:/root/service-acct.json \
-        -e SERVICE_ACCT=/root/service-acct.json \
-        -e GOOGLE_PROJ=${GOOGLE_PROJ} \
-        -e FIAB_HOST=${HOST_NAME} \
-        -e ALLOCATOR_URL=${ALLOCATOR_URL} \
-        broadinstitute/dsp-toolbox fiab list
-
-    HOST_IP=$(cat output/host.json | jq '.ip' --raw-output)
-
+    echo "Name: ${HOST_NAME}"
     # Copy configs to fiab host
-    $SSHCMD root@$HOST_IP "mkdir -p /FiaB"
-    rsync -r -e "${SSHCMD}" FiaB/ root@$HOST_IP:$HOST_PATH
-    $SSHCMD root@$HOST_IP "cp -rfp /etc/localtime $HOST_PATH"
+    echo "Copying FiaB directory to host"
+    gcloud compute --project ${GOOGLE_PROJ} scp --recurse --scp-flag='-q' ./FiaB root@${HOST_NAME}:/
+
+    echo "Localtime & ES hacks..."
+    $SSHCMD --command="cp -rfp /etc/localtime $HOST_PATH"
 
     # sad hack
-    $SSHCMD root@$HOST_IP "sudo chmod -R 777 $HOST_PATH/es || echo "cannot change file perms for $HOST_PATH/es/elasticsearch""
-    $SSHCMD root@$HOST_IP "sudo sysctl -w vm.max_map_count=262144 || echo "cannot set vm.max_map_count""
-    $SSHCMD root@$HOST_IP "bash $HOST_PATH/start_FiaB.sh $HOST_PATH"
+    $SSHCMD --command="sudo chmod -R 777 $HOST_PATH/es || echo 'cannot change file perms for $HOST_PATH/es/elasticsearch'"
+    $SSHCMD --command="sudo sysctl -w vm.max_map_count=262144 || echo 'cannot set vm.max_map_count'"
+    $SSHCMD --command="bash $HOST_PATH/start_FiaB.sh $HOST_PATH"
 
+    echo "Running dsp-toolbox start-fiab"
     # Allocate fiab as "in use"
     docker run --rm -v $PWD/output:/output \
         -v $PWD/${ADMIN_ACCT_PATH}:/root/service-acct.json \
@@ -82,7 +76,8 @@ stop_fiab() {
         broadinstitute/dsp-toolbox fiab list
     HOST_IP=$(cat output/host.json | jq '.ip' --raw-output)
 
-    $SSHCMD root@$HOST_IP "bash $HOST_PATH/stop_FiaB.sh $HOST_PATH"
+    
+    $SSHCMD --command="bash $HOST_PATH/stop_FiaB.sh $HOST_PATH"
 
     # Deallocate the fiab
     docker run --rm -v $PWD/output:/output \
@@ -93,33 +88,40 @@ stop_fiab() {
         -e ALLOCATOR_URL=${ALLOCATOR_URL} \
         broadinstitute/dsp-toolbox fiab stop-fiab
 
-
 }
 
 clear_db() {
-    $SSHCMD root@$HOST_IP "sudo rm -rf $HOST_PATH/mysqlstore/ $HOST_PATH/mongostore/ $HOST_PATH/es/ $HOST_PATH/opendjstore/ $HOST_PATH/ldapstore/"
+    echo "Clearing DB on host"
+    $SSHCMD --command="sudo rm -rf $HOST_PATH/mysqlstore/ $HOST_PATH/mongostore/ $HOST_PATH/es/ $HOST_PATH/opendjstore/ $HOST_PATH/ldapstore/"
 
 }
 
 populate_fiab() {
-    $SSHCMD root@$HOST_IP "sudo bash $POPULATE_PATH/basic-populate-fiab.sh $POPULATE_PATH $VAULT_TOKEN $ENV $DNS_DOMAIN $GOOGLE_PROJ $VAULT_ADDR"
-    $SSHCMD root@$HOST_IP "sudo bash $POPULATE_PATH/populate-consent-and-ontology.sh $POPULATE_PATH $VAULT_TOKEN $ENV $GOOGLE_APPS_DOMAIN $ADMIN_EMAIL $DNS_DOMAIN $VAULT_ADDR"
+    echo "Running basic-populate-fiab.sh on host"
+    $SSHCMD --command="sudo bash $POPULATE_PATH/basic-populate-fiab.sh $POPULATE_PATH $VAULT_TOKEN $ENV $DNS_DOMAIN $GOOGLE_PROJ $VAULT_ADDR"
+    echo "Running populate-consent-and-ontology.sh on host"
+    $SSHCMD --command="sudo bash $POPULATE_PATH/populate-consent-and-ontology.sh $POPULATE_PATH $VAULT_TOKEN $ENV $GOOGLE_APPS_DOMAIN $ADMIN_EMAIL $DNS_DOMAIN $VAULT_ADDR"
 
 }
 
 unpopulate_fiab() {
-    $SSHCMD root@$HOST_IP "sudo bash $POPULATE_PATH/basic-unpopulate-fiab.sh $POPULATE_PATH $VAULT_TOKEN $ENV"
+    echo "Running basic-unpopulate-fiab.sh on host"
+    $SSHCMD --command="sudo bash $POPULATE_PATH/basic-unpopulate-fiab.sh $POPULATE_PATH $VAULT_TOKEN $ENV"
 
 }
 
 docker pull broadinstitute/dsp-toolbox
 if [ $COMMAND = "start" ]; then
     echo "starting fiab"
+    echo "Pulling configs"
     pull_configs
+    echo "Rendering configs"
     render_configs
+    echo "Starting fiab"
     start_fiab
     echo "Sleeping for 4 minutes during fiab start..."
     sleep 240
+    echo "Populating fiab"
     populate_fiab
 
 elif [ $COMMAND = "stop" ]; then
@@ -128,8 +130,11 @@ elif [ $COMMAND = "stop" ]; then
 
 elif [ $COMMAND = "stopclear" ]; then
     echo "stopping fiab and clearing data"
+    echo "Unpopulating fiab"
     unpopulate_fiab
+    echo "Stopping fiab"
     stop_fiab
+    echo "Clearing DB"
     clear_db
 else
     echo "Not a valid command.  Try either 'start' or 'stop'"
