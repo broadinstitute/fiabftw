@@ -26,11 +26,11 @@ class Secret:
         self.value = value or self.create_secret(path, field)
 
     def create_secret(self, path, field):
-        if [p for p in self.UNSETABLE_PATHS if p in path] or [f for f in self.UNSETABLE_FIELDS if f in field]:
+        if [p for p in self.UNSETABLE_PATHS if p in path] or [f for f in self.UNSETABLE_FIELDS if f == field]:
             return None
         elif field == "value":
             path_suffix = path.split("/")[-1]
-            self.create_secret(path, path_suffix)
+            return self.create_secret(path, path_suffix)
         elif "password" in field or field == "signing-secret":
             return password_create()
         elif field == "gcs_tokenEncryptionKey" or field == "cryptokey" or field == "workflow_options_encryption_key":
@@ -60,8 +60,7 @@ def vault_overwrite_json(m_secret):
     with open("secret.json", 'w') as f:
         f.write(json.dumps(m_secret.body))
     f.close()
-    print "Writing...", m_secret.path
-    print m_secret.body
+    print "Overwriting JSON... {} -> {}".format(m_secret.path, m_secret.body)
     return subprocess.check_output("vault write {0} @secret.json".format(m_secret.path), shell=True)
 
 
@@ -72,10 +71,11 @@ def vault_read_secret(path, field=None):
     :param field: Specific field to read.  If None, reads all fields.
     :return: A dcit of the secret if it exists
     """
-    if field:
-        json_dict = subprocess.check_output("vault read -format=json -field={0} {1}".format(field, path), shell=True)
-    else:
-        json_dict = subprocess.check_output("vault read -format=json {0}".format(path), shell=True)
+    with open(os.devnull, 'w') as devnull:
+        if field:
+            json_dict = subprocess.check_output("vault read -format=json -field={0} {1}".format(field, path), shell=True, stderr=devnull)
+        else:
+            json_dict = subprocess.check_output("vault read -format=json {0}".format(path), shell=True, stderr=devnull)
 
     return json.loads(json_dict)['data']
 
@@ -106,9 +106,11 @@ def vault_edit_field(secret, body=None):
 
 
 def overwrite_secret(secret_path, body):
+    print "Overwriting secret at {}".format(secret_path)
     sub_secrets = {}
     for f,x in body.iteritems():
         s = Secret(secret_path, f, x)
+        print "field: {}, value: {}, s.value: {}".format(f, x, s.value)
         if s.value:
             sub_secrets[f] = s.value
 
@@ -143,6 +145,7 @@ def populate_secret(secret_path, body, overwrite=False):
                     vault_edit_field(new_secret, body=existing_secret)
 
     except subprocess.CalledProcessError as e:
+        print "Seret at path {} does not exist; overwriting".format(secret_path)
         overwrite_secret(secret_path, body)
 
 
@@ -152,6 +155,7 @@ def populate_secrets_from_file(secrets, env, overwrite=False):
         k = s[s.find("(")+1:s.find(")")]
         secret_path = subprocess.check_output(k, shell=True, env=env)
         body = {x.split(".")[0]: None for x in v}
+        print "Secret path: {}, body: {}".format(secret_path, body)
         populate_secret(secret_path, body, overwrite=overwrite)
 
 
