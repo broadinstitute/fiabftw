@@ -20,10 +20,6 @@ VAULT_CONFIG_PATH=/w/vault/vault-config.json
 SSHCMD="gcloud compute --project ${GOOGLE_PROJ} ssh root@${HOST_NAME}"
 
 
-pull_configs() {
-    ./initialize-secrets.sh $ENV
-
-}
 render_configs() {
     # render configs and copy them to the host
     mkdir -p FiaB
@@ -43,7 +39,7 @@ start_fiab() {
     echo "Name: ${HOST_NAME}"
     # Copy configs to fiab host
     echo "Copying FiaB directory to host"
-    gcloud compute --project ${GOOGLE_PROJ} scp --recurse --scp-flag='-q' ./FiaB root@${HOST_NAME}:/
+    gcloud compute --project ${GOOGLE_PROJ} scp --recurse --scp-flag='-q' FiaB root@${HOST_NAME}:/
 
     echo "Localtime & ES hacks..."
     $SSHCMD --command="cp -rfp /etc/localtime $HOST_PATH"
@@ -51,6 +47,8 @@ start_fiab() {
     # sad hack
     $SSHCMD --command="sudo chmod -R 777 $HOST_PATH/es || echo 'cannot change file perms for $HOST_PATH/es/elasticsearch'"
     $SSHCMD --command="sudo sysctl -w vm.max_map_count=262144 || echo 'cannot set vm.max_map_count'"
+    
+    echo "Running start_FiaB.sh on host"
     $SSHCMD --command="bash $HOST_PATH/start_FiaB.sh $HOST_PATH"
 
     echo "Running dsp-toolbox start-fiab"
@@ -112,9 +110,7 @@ unpopulate_fiab() {
 
 docker pull broadinstitute/dsp-toolbox
 if [ $COMMAND = "start" ]; then
-    echo "starting fiab"
-    echo "Pulling configs"
-    pull_configs
+    echo "fiab.sh start"
     echo "Rendering configs"
     render_configs
     echo "Starting fiab"
@@ -125,11 +121,11 @@ if [ $COMMAND = "start" ]; then
     populate_fiab
 
 elif [ $COMMAND = "stop" ]; then
-    echo "stopping fiab"
+    echo "fiab.sh stop"
     stop_fiab
 
 elif [ $COMMAND = "stopclear" ]; then
-    echo "stopping fiab and clearing data"
+    echo "fiab.sh stopclear"
     echo "Unpopulating fiab"
     unpopulate_fiab
     echo "Stopping fiab"
