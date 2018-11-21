@@ -1,0 +1,101 @@
+{{with $environment := env "ENVIRONMENT"}}
+{{with $runContext := env "RUN_CONTEXT"}}
+{{with $googleProj := env "GOOGLE_PROJ"}}
+{{with $appsDomain := env "GOOGLE_APPS_DOMAIN"}}
+{{with $appsSubdomain := env "GOOGLE_APPS_SUBDOMAIN"}}
+{{with $samConf := vault (printf "secret/dsde/firecloud/%s/sam/sam.conf" $environment)}}
+{{with $refreshTokenOAuthCredential := vault (printf "secret/dsde/firecloud/%s/common/refresh-token-oauth-credential.json" $environment)}}
+{{with $billingServiceAccount := vault (printf "secret/dsde/firecloud/%s/common/billing-account.json" $environment)}}
+{{with $samServiceAccount := vault (printf "secret/dsde/firecloud/%s/sam/sam-account.json" $environment)}}
+{{with $hostTag := env "HOST_TAG"}}
+{{with $dnsDomain := env "DNS_DOMAIN"}}
+{{with $ldapDc := env "LDAP_BASE_DOMAIN"}}
+
+directory {
+  url = {{if eq $runContext "fiab"}}"ldap://opendj.{{$dnsDomain}}:390"{{else if eq $runContext "live"}}"ldaps://opendj-priv.{{$dnsDomain}}"{{else}}"ldaps://opendj.{{$dnsDomain}}"{{end}}
+  user = "cn=Directory Manager"
+  password = "{{$samConf.Data.ldap_password}}"
+  baseDn = "{{$ldapDc}}"
+  enabledUsersGroupDn = "cn=enabled-users,ou=groups,{{$ldapDc}}"
+}
+
+swagger {
+  googleClientId = "{{$refreshTokenOAuthCredential.Data.web.client_id}}"
+  realm = "{{$googleProj}}"
+}
+
+emailDomain = "{{$appsSubdomain}}"
+
+googleServices {
+  appName = "firecloud:sam"
+  appsDomain = "{{$appsSubdomain}}"
+  environment = "{{$environment}}"
+  pathToPem = "/etc/sam-account.pem"
+  pathToFirestoreCredentialJson = "/etc/sam-firestore-account.json"
+  serviceAccountClientId = "{{$samServiceAccount.Data.client_id}}"
+  serviceAccountClientEmail = "{{$samServiceAccount.Data.client_email}}"
+  serviceAccountClientProject = "{{$samServiceAccount.Data.project_id}}"
+  subEmail = "google@{{$appsSubdomain}}"
+  projectServiceAccount = "{{$googleProj}}@gs-project-accounts.iam.gserviceaccount.com"
+  
+  billing {
+    pathToBillingPem = "/etc/billing-account.pem"
+    billingPemEmail = "{{$billingServiceAccount.Data.client_email}}"
+    billingEmail = "billing@{{$appsDomain}}"
+  }
+
+  groupSync {
+    pubSubProject = {{$googleProj}}
+    pollInterval = 1m
+    pollJitter = 10s
+    pubSubTopic = sam-group-sync{{if eq $runContext "fiab"}}-{{$hostTag}}{{else if eq $runContext "local"}}-local{{else}}{{end}}
+    pubSubSubscription = sam-group-sync{{if eq $runContext "fiab"}}-{{$hostTag}}{{else if eq $runContext "local"}}-local{{else}}{{end}}-sub
+    workerCount = 10
+  }
+
+  googleKeyCache {
+    bucketName = {{if eq $environment "prod"}}"wb-sam-key-cache"{{else}}"wb-sam-key-cache-{{$googleProj}}-{{$environment}}"{{end}}
+    activeKeyMaxAge = 12
+    retiredKeyMaxAge = 60
+
+    monitor {
+      pubSubProject = {{$googleProj}}
+      pollInterval = 1m
+      pollJitter = 10s
+      pubSubTopic = sam-google-key-cache
+      pubSubSubscription = sam-google-key-cache-sub
+      workerCount = 1
+    }
+  }
+  
+  notifications.topicName=workbench-notifications-{{if eq $runContext "fiab"}}{{$hostTag}}{{else if eq $runContext "local"}}local{{else}}{{$environment}}{{end}}
+  
+  adminSdkServiceAccounts = [{{ range $i := loop 3 }}{{with $currentSA := vault (printf "secret/dsde/firecloud/%s/sam/service_accounts/service_account_%d" $environment $i)}}
+    {{$currentSA.Data | toJSON}}
+  {{ end }}{{ end }}]
+  
+}
+
+schemaLock {
+  lockSchemaOnBoot = true
+  recheckTimeInterval = 5
+  maxTimeToWait = 60
+  instanceId = {{ or (env "INSTANCE_NAME") (env "HOST_TAG") }}
+}
+
+petServiceAccount {
+  # TODO: eventually pet service accounts should live in their own separate project (managed by us)
+  googleProject = "{{$googleProj}}"
+  serviceAccountUsers = ["leonardo-{{$environment}}@{{$googleProj}}.iam.gserviceaccount.com"]
+}
+
+# this allows gpalloc projects to be released in sam only applicable to fiab, dev, alpha and staging
+{{if or (eq $runContext "fiab") (or (or (eq $environment "alpha") (eq $environment "dev")) (eq $environment "staging"))}}
+resourceTypes.billing-project.actionPatterns += "delete"
+resourceTypes.billing-project.roles.owner.roleActions += "delete"
+{{end}}
+
+akka.http.server.idle-timeout = 180 s
+akka.http.server.request-timeout = 60 s
+
+{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}
