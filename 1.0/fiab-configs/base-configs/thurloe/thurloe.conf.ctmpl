@@ -1,0 +1,77 @@
+{{with $environment    := env "ENVIRONMENT"}}
+{{with $runContext := env "RUN_CONTEXT"}}
+{{with $hostTag := env "HOST_TAG"}}
+{{with $googleProj := env "GOOGLE_PROJ"}}
+{{with $thurloeSecrets := vault (printf "secret/dsde/firecloud/%s/thurloe/thurloe.conf" $environment)}}
+{{with $commonSecrets  := vault (printf "secret/dsde/firecloud/%s/common/secrets" $environment)}}
+{{with $thurloeServiceAccount := vault (printf "secret/dsde/firecloud/%s/thurloe/thurloe-account.json" $environment)}}
+{{with $refreshTokenOAuthCredential := vault (printf "secret/dsde/firecloud/%s/common/refresh-token-oauth-credential.json" $environment)}}
+{{with $dnsDomain := env "DNS_DOMAIN"}}
+
+include "application.conf"
+
+database {
+  config = mysql
+
+  mysql {
+    db {
+      url = "jdbc:mysql://mysql.{{$dnsDomain}}:3306/thurloe{{if ne $runContext "fiab"}}?requireSSL=true&useSSL=true{{end}}"
+      user = "{{$thurloeSecrets.Data.db_user}}"
+      password = "{{$thurloeSecrets.Data.db_password}}"
+      driver = "com.mysql.jdbc.Driver"
+      connectionTimeout = 5000
+    }
+    driver = "slick.driver.MySQLDriver$"
+    connectionPool = disabled
+  }
+}
+
+crypto {
+  key = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+}
+
+sendgrid {
+  apiKey = "{{$thurloeSecrets.Data.sendgrid_apiKey}}"
+  defaultFromAddress = {{if eq $environment "prod"}}"help@firecloud.org"{{else}}"help@{{$environment}}.test.firecloud.org"{{end}}
+  defaultFromName = "FireCloud"
+  substitutionChar = "%"
+}
+
+fireCloud {
+  id = "{{$commonSecrets.Data.firecloud_id}}"
+}
+
+gcs {
+  appName = "firecloud:thurloe"
+  pathToPem = "/etc/thurloe-account.pem"
+  clientEmail = "{{$thurloeServiceAccount.Data.client_email}}"
+  serviceProject = "{{$googleProj}}"
+
+  notificationMonitor {
+   pollInterval = 45s
+   pollIntervalJitter = 15s
+   topicName = workbench-notifications-{{if eq $runContext "fiab"}}{{$hostTag}}{{else if eq $runContext "local"}}local{{else}}{{$environment}}{{end}}
+   subscriptionName = workbench-notifications-{{if eq $runContext "fiab"}}{{$hostTag}}{{else if eq $runContext "local"}}local{{else}}{{$environment}}{{end}}-sub
+   workerCount = 10
+  }
+}
+
+
+notification {
+  fireCloudPortalUrl = "{{if eq $environment "prod"}}https://portal.firecloud.org{{else}}{{if eq $runContext "fiaB"}}https://firecloud-fiab.{{$dnsDomain}}:22443{{else if eq $runContext "local"}}https://local.broadinstitute.org{{else}}https://firecloud.{{$dnsDomain}}{{end}}{{end}}"
+  
+  templateIds {
+    ActivationNotification={{if eq $environment "prod"}}b8fad6e3-aecf-48d7-a1ac-713e8d3eab9f{{else}}ab632bfc-e0b9-47c0-a6ef-cdbd832b0acb{{end}}
+    WorkspaceAddedNotification={{if eq $environment "prod"}}510dec46-0517-4180-be6b-c0000cc6b139{{else}}01e1527c-ec6a-4da5-96e0-2f5bc0c61e32{{end}}
+    WorkspaceRemovedNotification={{if eq $environment "prod"}}590a9350-9a9f-4644-b94a-58de26c4fae1{{else}}9eb5da40-cd43-4503-975d-f516fcffd9fe{{end}}
+    WorkspaceInvitedNotification={{if eq $environment "prod"}}deca5942-57ad-49de-b08e-8f0c789b5996{{else}}6531f336-52ad-4456-aa5b-8ecc886af86a{{end}}
+    WorkspaceChangedNotification={{if eq $environment "prod"}}cdbefb99-73bc-4ead-b15a-c1bc4df69dda{{else}}318244c4-c61f-4897-b279-77b56c6ec5db{{end}}
+    GroupAccessRequestNotification={{if eq $environment "prod"}}73cff0d5-286d-42f8-9565-9c4610679141{{else}}c8060020-995c-4b23-8610-9f38385e385e{{end}}
+  }
+}
+
+auth {
+  googleClientId = "{{$refreshTokenOAuthCredential.Data.web.client_id}}"
+}
+
+{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}
