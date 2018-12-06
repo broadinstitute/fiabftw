@@ -1,0 +1,42 @@
+{{with $environment := env "ENVIRONMENT"}}
+{{with $runContext := env "RUN_CONTEXT"}}
+{{with $dnsDomain := env "DNS_DOMAIN"}}
+{{with $googleProj := env "GOOGLE_PROJ"}}
+{{with $refreshTokenOAuthCredential := vault (printf "secret/dsde/firecloud/%s/common/refresh-token-oauth-credential.json" $environment)}}
+{{with $fenceSecrets := vault (printf "secret/dsde/bond/%s/config.ini" $environment)}}
+
+
+{
+  "apiUrlRoot": {{if eq $runContext "fiab"}}"https://firecloud-orchestration-fiab.{{$dnsDomain}}:23443"{{else if eq $runContext "local"}}"http://localhost:8080"{{else if eq $environment "prod"}}"https://api.firecloud.org"{{else}}"https://firecloud-orchestration.{{$dnsDomain}}"{{end}},
+  "leonardoUrlRoot": {{if eq $runContext "fiab"}}"https://leonardo-fiab.{{$dnsDomain}}:30443"{{else}}{{if eq $environment "prod"}}"https://notebooks.firecloud.org"{{else}}"https://leonardo.{{$dnsDomain}}"{{end}}{{end}},
+  "samUrlRoot": {{if eq $runContext "fiab"}}"https://sam-fiab.{{$dnsDomain}}:29443"{{else}}"https://sam.{{$dnsDomain}}"{{end}},
+  "googleClientId": "{{$refreshTokenOAuthCredential.Data.web.client_id}}",
+  "isDebug": {{if eq $environment "prod"}}false{{else}}true{{end}},
+  "shibbolethUrlRoot": {{if eq $environment "prod"}}"https://shibboleth.dsde-prod.broadinstitute.org"{{else}}"http://mock-nih.dev.test.firecloud.org"{{end}},
+  "tcgaNamespace": {{if eq $environment "prod"}}"broad-firecloud-tcga"{{else}}"broad-firecloud-tcga-{{$environment}}"{{end}},
+  "workflowCountWarningThreshold": 100,
+  "submissionStatusRefresh": 60000,
+  "userGuideUrl": "https://software.broadinstitute.org/firecloud/documentation/",
+  "userNotebooksGuideUrl": "https://software.broadinstitute.org/firecloud/documentation/quickstart?page=notebooks",
+  "forumUrl": "http://gatkforums.broadinstitute.org/firecloud",
+  "billingAccountGuideUrl": "http://gatkforums.broadinstitute.org/firecloud/discussion/9762/howto-set-up-a-google-billing-account-non-broad-users",
+  "billingProjectGuideUrl": "https://gatkforums.broadinstitute.org/firecloud/discussion/9763/howto-create-a-new-firecloud-billing-project",
+  "callCachingGuideUrl": "http://gatkforums.broadinstitute.org/firecloud/discussion/9313/call-caching",
+  "googleBucketUrl": {{if eq $environment "prod"}}"https://storage.googleapis.com/firecloud-alerts/"{{else}}"https://storage.googleapis.com/firecloud-alerts-{{ or (env "BUCKET_TAG") (env "ENVIRONMENT") }}/"{{end}},
+  "dockstoreApiUrl": {{if eq $environment "prod"}}"https://dockstore.org:8443"{{else}}"https://staging.dockstore.org:8443"{{end}},
+  "dockstoreWebUrl": {{if eq $environment "prod"}}"https://dockstore.org"{{else}}"https://staging.dockstore.org"{{end}},
+  "bondUrl": {{if eq $runContext "fiab"}}"https://bond-fiab.{{$dnsDomain}}:31443"{{else}}"https://broad-bond-{{$environment}}.appspot.com"{{end}},
+  "dcpFenceUrl": "https://dcp.bionimbus.org",
+  "dcpFenceClientId": "{{ $fenceSecrets.Data.client_id }}",
+  "dcfFenceUrl": {{if eq $environment "prod"}}"https://nci-crdc.datacommons.io"{{else}}"https://nci-crdc-staging.datacommons.io"{{end}},
+  "dcfFenceClientId": "{{ $fenceSecrets.Data.dcf_fence_client_id }}",
+  "marthaFileSummaryUrl": {{if eq $runContext "fiab"}}"https://martha-fiab.{{$dnsDomain}}:32443/dockerized-martha/us-central1/fileSummaryV1"{{else}}"https://us-central1-broad-dsde-{{$environment}}.cloudfunctions.net/fileSummaryV1"{{end}},
+  "marthaUrl": {{if eq $runContext "fiab"}}"https://martha-fiab.{{$dnsDomain}}:32443/dockerized-martha/us-central1/martha_v1"{{else}}"https://us-central1-broad-dsde-{{$environment}}.cloudfunctions.net/martha_v1"{{end}},
+  "tosUrl": {{if eq $runContext "fiab"}}"https://us-central1-{{$googleProj}}.cloudfunctions.net/tos"{{else}}"https://us-central1-broad-dsde-{{$environment}}.cloudfunctions.net/tos"{{end}},
+  "tosApplicationName": {{if eq $runContext "fiab"}}"{{env "HOST_TAG"}}"{{else}}"FireCloud"{{end}},
+  "tosVersion": {{if eq $runContext "fiab"}}1{{else}}20180629.1{{end}},
+  "terraUrl": {{if eq $environment "prod"}}"https://app.terra.bio"{{else}}"https://bvdp-saturn-dev.appspot.com"{{end}}{{if eq $environment "prod"}},
+  "statusUrl": "http://status.firecloud.org"{{end}}
+}
+
+{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}
