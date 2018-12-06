@@ -166,6 +166,28 @@ You will also need to login as the billing user and accept the Terms of Service:
 ```
 Note: the parameter `bucket-tag` is for giving a globally unique tag to Firecloud buckets.  It will default to `[google project]-[env]`
 
+## Step 4.5: Set up Cloud Functions for the Terms of Service app
+
+The FireCloud UI calls a Cloud Functions endpoint to determine whether a user has accepted the Terms of Service. This needs to be set up on your FIAB if you want real users to be able to register.
+
+Steps required:
+
+### Create a tos.json file in GCS.
+
+Copy the tos.json from firecloud-dev: https://storage.googleapis.com/firecloud-alerts-dev/tos.json and store it in the following GCS location: `firecloud-alerts-[google project]-fiab/tos.json. Make the file world-readable.
+
+### Set up Cloud Functions on the GCP project.
+
+Enable the Cloud Functions API by visiting: https://console.cloud.google.com/functions/list?project=terra-on-verily and clicking “Enable”.
+
+### Deploy the TOS cloud function.
+
+Clone the Git repository https://github.com/gjuggler/workbench-tos. (Note :the original repo is at https://github.com/broadinstitute/workbench-tos, but some modifications were necessary to allow it to work with FIAB. We are working to get these pulled into the main repo.)
+
+From within the workbench-tos root directory, deploy the TOS function with a command like:
+
+`./deploy.sh [vault-token] master [env] [google proj] [vault address]`
+
 ## Step 5: Networking and DNS
 
 Populate SSL certs into vault:
