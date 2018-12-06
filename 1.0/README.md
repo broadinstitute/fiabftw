@@ -36,6 +36,7 @@ gcloud config set project [google project]
 The following environment variables will be referenced in the remainder of this documentation: 
 - `[google project]` - the name of your google project (i.e. `broad-dsp-fiabftw`)
 - `[google apps domain]` - your GSuite account domain (i.e. `fiabftw.firecloud.org`)
+- `[organization id]` - the Google Cloud Platform organizaton ID containing the google project.
 - `[admin email]` - an admin account to act as script runner.  Should be in the google apps domain and a Project Owner in the google project.
 - `[dns domain]` - the DNS domain with associated SSL certs (i.e. `fiabftw.broadinstitute.org`)
 - `[env]` - This is an internal variable that allows for the possibility of standing up multiple fiab "environments" with their own service accounts, groups, and DNS domains.  Will default to a single env, `fiab`.  If you are using the default, this variable does not need to be passed as a parameter to the setup scripts.
@@ -246,19 +247,19 @@ Refresh Token Oauth Credential in gcloud APIs.
 
 3. Start Firecloud on the host.  This will also run a basic populate.
 ```
-./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
+./fiab.sh start [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env] [organization id]
 ```
 
 For details on how to reach Firecloud and its APIs see the "Usage" section of the [Usage Documentation](./USAGE.md).
 
 #### To stop a fiab
 ```
-./fiab.sh stop [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
+./fiab.sh stop [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env] [organization id]
 ```
 
 #### To stop a fiab and clear its databases
 ```
-./fiab.sh stopclear [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env]
+./fiab.sh stopclear [fiab host] [allocator url] [google proj] [google apps domain] [dns domain] [admin email] [env] [organization id]
 ```
 
 To perform more actions on your fiab host, use the Swagger API, accessible at `http://[allocator host]:80/apidocs/index.html`

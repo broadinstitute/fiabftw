@@ -1,0 +1,230 @@
+{{with $environment := env "ENVIRONMENT"}}
+{{with $instanceType := env "INSTANCE_TYPE"}}
+{{with $hostTag := env "HOST_TAG"}}
+{{with $runContext := env "RUN_CONTEXT"}}
+{{with $googleProj := env "GOOGLE_PROJ"}}
+{{with $appsDomain := env "GOOGLE_APPS_DOMAIN"}}
+{{with $appsSubdomain := env "GOOGLE_APPS_SUBDOMAIN"}}
+{{with $dnsDomain := env "DNS_DOMAIN"}}
+{{with $rawlsConf := vault (printf "secret/dsde/firecloud/%s/rawls/rawls.conf" $environment)}}
+{{with $rawlsAccount := vault (printf "secret/dsde/firecloud/%s/rawls/rawls-account.json" $environment)}}
+{{with $rawlsOAuthCredential := vault (printf "secret/dsde/firecloud/%s/rawls/rawls-oauth-credential.json" $environment)}}
+{{with $billingServiceAccount := vault (printf "secret/dsde/firecloud/%s/common/billing-account.json" $environment)}}
+{{with $bigQueryServiceAccount := vault (printf "secret/dsde/firecloud/%s/common/bigquery-account.json" $environment)}}
+{{with $refreshTokenOAuthCredential := vault (printf "secret/dsde/firecloud/%s/common/refresh-token-oauth-credential.json" $environment)}}
+{{with $cromwellServiceAcct := vault (printf "secret/dsde/firecloud/%s/cromwell/cromwell-account.json" $environment)}}
+{{with $graphiteKey := vault (printf "secret/dsde/firecloud/%s/common/hostedgraphiteapi" $environment)}}
+{{with $samConf := vault (printf "secret/dsde/firecloud/%s/sam/sam.conf" $environment)}}
+{{with $ldapDc := env "LDAP_BASE_DOMAIN"}}
+{{with $orgId := env "GOOGLE_APPS_ORGANIZATION_ID"}}
+
+backRawls = {{if eq $instanceType "frontend"}}false{{else}}true{{end}}
+
+gcs {
+  deletedBucketCheckSeconds = "21600"
+  appName = "firecloud:rawls"
+  appsDomain = "{{$appsSubdomain}}"
+  groupsPrefix = "fc"
+  pathToPem = "/etc/rawls-account.pem"
+  secrets = """{{$rawlsOAuthCredential.Data | toJSON}}"""
+  serviceClientEmail = "{{$rawlsAccount.Data.client_email}}"
+  serviceProject = "{{$googleProj}}"
+  subEmail = "google@{{$appsSubdomain}}"
+  tokenEncryptionKey = "{{$rawlsConf.Data.gcs_tokenEncryptionKey}}"
+  tokenSecretsJson = """{{$refreshTokenOAuthCredential.Data | toJSON}}"""
+  pathToBillingPem = "/etc/billing-account.pem"
+  billingPemEmail = "{{$billingServiceAccount.Data.client_email}}"
+  billingEmail = "billing@{{$appsDomain}}"
+  bigQueryJson = """{{$bigQueryServiceAccount.Data | toJSON}}"""
+  billingExportTableName = "broad-gcp-billing.gcp_billing_export.gcp_billing_export_v1_001AC2_2B914D_822931"
+  projectTemplate {
+    # note that all members of owners must be in the same domain as billingEmail, this includes any group members
+    owners = ["group:firecloud-project-owners@{{$appsDomain}}"]
+    editors = ["serviceAccount:{{$rawlsAccount.Data.client_email}}", "serviceAccount:{{$cromwellServiceAcct.Data.client_email}}"]
+    services = ["autoscaler", "bigquery", "clouddebugger", "container", "compute_component", "dataflow.googleapis.com", "dataproc", "deploymentmanager", "genomics", "logging.googleapis.com", "replicapool", "replicapoolupdater", "resourceviews", "sql_component", "storage_api", "storage_component"]
+    ownerGrantableRoles = ["bigquery.jobUser"]
+  }
+
+  groupMonitor {
+   pollInterval = 45s
+   pollIntervalJitter = 15s
+   topicName = rawls-groups-to-sync-{{if eq $runContext "fiab"}}{{$hostTag}}{{else if eq $runContext "local"}}local{{else}}{{$environment}}{{end}}
+   subscriptionName = rawls-groups-to-sync-{{if eq $runContext "fiab"}}{{$hostTag}}{{else if eq $runContext "local"}}local{{else}}{{$environment}}{{end}}-sub
+   workerCount = 10
+   samTopicName = sam-group-sync{{if eq $runContext "fiab"}}-{{$hostTag}}{{else if eq $runContext "local"}}-local{{else}}{{end}}
+  }
+
+  notifications.topicName=workbench-notifications-{{if eq $runContext "fiab"}}{{$hostTag}}{{else if eq $runContext "local"}}local{{else}}{{$environment}}{{end}}
+  
+  requesterPaysRole=organizations/{{$orgId}}/roles/RequestorPays
+}
+
+# Obsolete, leaving in place for a while so I don't break everyone's branches
+methodrepo {
+  server = "https://agora{{if eq $runContext "fiab"}}-fiab{{end}}.{{$dnsDomain}}:443"
+  path = "/api/v1"
+}
+
+agora {
+  server = "https://agora{{if eq $runContext "fiab"}}-fiab{{end}}.{{$dnsDomain}}:443"
+  path = "/api/v1"
+}
+
+dockstore {
+  server = {{if eq $environment "prod"}}"https://dockstore.org:8443"{{else}}"https://staging.dockstore.org:8443"{{end}}
+  path = "/api"
+}
+
+sam {
+  server = "https://sam{{if eq $runContext "fiab"}}-fiab{{end}}.{{$dnsDomain}}:443"
+}
+
+martha {
+  baseUrl = {{if eq $runContext "fiab"}}"https://martha-fiab.{{$dnsDomain}}:32443/dockerized-martha/us-central1/martha_v1"{{else}}"https://us-central1-broad-dsde-{{$environment}}.cloudfunctions.net/martha_v1"{{end}}
+  baseUrl_v2 = {{if eq $runContext "fiab"}}"https://martha-fiab.{{$dnsDomain}}:32443/dockerized-martha/us-central1/martha_v2"{{else}}"https://us-central1-broad-dsde-{{$environment}}.cloudfunctions.net/martha_v2"{{end}}
+}
+
+executionservice {
+  {{if eq $runContext "fiab"}}
+  readServers = { "cromwell": "https://cromwell-fiab.{{$dnsDomain}}:443" }
+  submitServers = { "cromwell": "https://cromwell-fiab.{{$dnsDomain}}:443" }
+  abortServers = { "cromwell": "https://cromwell-fiab.{{$dnsDomain}}:443" }
+  {{else if eq $runContext "live"}}
+  readServers = { "cromwell1": "https://cromwell1-int-lb.{{$dnsDomain}}:443"{{ if ne $environment "perf"}}, "cromwell2": "https://cromwell2-priv.{{$dnsDomain}}:443" {{end}} }
+  submitServers = { "cromwell1": "https://cromwell1-int-lb.{{$dnsDomain}}:443" }
+  abortServers = { "cromwell1": "https://cromwell1-abort-priv.{{$dnsDomain}}:443" }
+  {{else}}
+  readServers = { "cromwell1": "https://cromwell1.{{$dnsDomain}}:443"{{ if ne $environment "perf"}}, "cromwell2": "https://cromwell2.{{$dnsDomain}}:443" {{end}} }
+  submitServers = { "cromwell1": "https://cromwell1.{{$dnsDomain}}:443" }
+  {{end}}
+  defaultRuntimeOptions = { "zones": "us-central1-b us-central1-c us-central1-f" }
+  workflowSubmissionTimeout = "5m"
+  batchSize = 1
+  processInterval = 10ms
+  pollInterval = 1m
+  parallelSubmitters = 10
+  maxActiveWorkflowsPerServer = {{if eq $runContext "fiab"}}10000{{else}}20000{{end}}
+
+  # number of uses that could together occupy all the workflow slots
+  activeWorkflowHogFactor = 10
+}
+
+userLdap {
+  providerUrl = {{if eq $runContext "fiab"}}"ldap://opendj.{{$dnsDomain}}:390"{{else if eq $runContext "live"}}"ldaps://opendj-priv.{{$dnsDomain}}"{{else}}"ldaps://opendj.{{$dnsDomain}}"{{end}}
+  user = "cn=Directory Manager"
+  password = "{{$samConf.Data.ldap_password}}"
+  groupDn = "cn=enabled-users,ou=groups,{{$ldapDc}}"
+  memberAttribute = "member"
+  userObjectClasses = ["inetOrgPerson", "organizationalPerson", "person", "top"]
+  userAttributes = ["uid", "sn", "cn"]
+  userDnFormat =  "uid=%s,ou=people,{{$ldapDc}}"
+}
+
+slick {
+  driver = "slick.driver.MySQLDriver$"
+  batchSize = 2000
+  db {
+    url = {{if eq $runContext "fiab"}}"jdbc:mysql://mysql.{{$dnsDomain}}/rawls?rewriteBatchedStatements=true&autoReconnect=true&useSSL=false"{{else}}"jdbc:mysql://sqlproxy:3306/rawls?requireSSL=false&useSSL=false&rewriteBatchedStatements=true"{{end}}
+    driver = com.mysql.jdbc.Driver
+    user = "{{$rawlsConf.Data.slick_db_user}}"
+    password = {{if eq $runContext "fiab"}}"globochem"{{else}}"{{$rawlsConf.Data.slick_db_password}}"{{end}}
+    connectionTimeout = 5000
+    numThreads = {{if eq $runContext "fiab"}}100{{else}}200{{end}}
+    leakDetectionThreshold = 120000
+  }
+}
+
+liquibase {
+  changelog = "org/broadinstitute/dsde/rawls/liquibase/changelog.xml"
+  initWithLiquibase = {{if eq $runContext "local"}}false{{else}}true{{end}}
+}
+
+akka {
+  loglevel = INFO
+  logger-startup-timeout = 20s
+  
+  http {
+    server {
+      idle-timeout = 210 s
+      request-timeout=180 s
+    }
+    host-connection-pool {
+      max-open-requests = 16384
+      max-connections = 20
+    }
+    parsing {
+      # allow parsing of larger responses from cromwell (and others)
+      max-content-length = 50m
+    }
+  }
+}
+
+integration.runFullLoadTest = false
+
+
+submissionmonitor {
+  trackDetailedSubmissionMetrics = {{if (or (eq $runContext "fiab") (eq $environment "alpha") (eq $environment "perf") (eq $environment "staging"))}}false{{else}}true{{end}}
+}
+
+submission-monitor-dispatcher {
+  # Dispatcher is the name of the event-based dispatcher
+  type = Dispatcher
+  # What kind of ExecutionService to use
+  executor = "fork-join-executor"
+  # Configuration for the fork join pool
+  fork-join-executor {
+    # Min number of threads to cap factor-based parallelism number to
+    parallelism-min = 2
+    # Parallelism (threads) ... ceil(available processors * factor)
+    parallelism-factor = 2.0
+    # Max number of threads to cap factor-based parallelism number to
+    parallelism-max = 20
+  }
+  # Throughput defines the maximum number of messages to be
+  # processed per actor before the thread jumps to the next actor.
+  # Set to 1 for as fair as possible.
+  throughput = 1
+}
+
+metrics {
+  enabled = {{if (or (eq $runContext "fiab") (eq $runContext "local"))}}false{{else}}true{{end}}
+  prefix = "{{if eq $runContext "fiab"}}{{$hostTag}}{{else}}{{$environment}}{{end}}.firecloud.rawls"
+  includeHostname = false
+  reporters {
+    statsd {
+      host = "statsd.hostedgraphite.com"
+      apiKey = "{{$graphiteKey.Data.value}}"
+      port = 8125
+      period = 1m
+    }
+  }
+}
+
+directory {
+  url = {{if eq $runContext "fiab"}}"ldap://opendj.{{$dnsDomain}}:390"{{else if eq $runContext "live"}}"ldaps://opendj-priv.{{$dnsDomain}}"{{else}}"ldaps://opendj.{{$dnsDomain}}"{{end}} 
+  user = "cn=Directory Manager"
+  password = "{{$samConf.Data.ldap_password}}"
+  baseDn = "{{$ldapDc}}"
+}
+
+swagger {
+  googleClientId = "{{$refreshTokenOAuthCredential.Data.web.client_id}}"
+  realm = "{{$googleProj}}"
+}
+
+wdl-parsing {
+  # number of parsed WDLs to cache
+  cache-max-size = 7500
+  # TTL for WDLs where the parser returned normally
+  # 432000 seconds = 5 days
+  cache-ttl-success-seconds = 432000
+  # TTL for WDLs where the parser encountered a transient/retryable error, such as a timeout.
+  # Set this to zero to not cache these failures. Set this to a low number to return the cached failure
+  # to any queued threads waiting on WDL parsing, and thus allow the queue to drain quickly instead
+  # of backing up on a slow error
+  cache-ttl-failure-seconds = 2
+  # timeout for WDL parsing. Not honored in the current implementation.
+  parser-thread-pool-timeout-seconds = 50
+}
+
+{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}{{end}}
