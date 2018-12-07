@@ -14,13 +14,14 @@ Other requirements:
 - A [Google Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) (hence referred to as `[google project]`) with a billing account linked to it and the following APIs enabled:
     - Admin SDK
     - Cloud Billing API
+    - Cloud Dataproc API
+    - Cloud Firestore API
+    - Cloud Pub/Sub API
+    - Cloud Resource Manager API
+    - Genomics API
     - Google Drive API
     - Google Sheets API
-    - Cloud Pub/Sub API
     - Identity and Access Management API
-    - Genomics API
-    - Cloud Dataproc API
-    - Cloud Resource Manager API
 - A [GSuite](https://gsuite.google.com/) account (hence referred to as `[google apps domain]`)
 - An admin user (hence referred to as `[admin user]`) in the Apps Domain who has also been added to the google project with the "Project Owner" IAM role
 - A DNS Domain for the project (hence referred to as `[dns domain]`) 
